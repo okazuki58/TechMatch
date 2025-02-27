@@ -1,24 +1,44 @@
-@import "tailwindcss";
+/* app/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  body {
+    @apply text-gray-800 antialiased;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .quiz-option {
+    @apply p-4 border-2 border-gray-200 rounded-lg cursor-pointer transition-all hover:bg-blue-50 hover:border-blue-600;
+  }
+  
+  .quiz-option.selected {
+    @apply bg-blue-600 text-white border-blue-600;
+  }
+  
+  .quiz-option.correct {
+    @apply bg-green-500 text-white border-green-500;
+  }
+  
+  .quiz-option.incorrect {
+    @apply bg-red-500 text-white border-red-500;
+  }
+  
+  .btn {
+    @apply px-6 py-3 rounded-lg font-medium transition-colors;
+  }
+  
+  .btn-primary {
+    @apply bg-blue-600 text-white hover:bg-blue-700;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 text-gray-700 hover:bg-gray-300;
+  }
+  
+  .btn-disabled {
+    @apply bg-gray-200 text-gray-400 cursor-not-allowed;
+  }
 }
