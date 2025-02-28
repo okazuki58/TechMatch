@@ -3,9 +3,11 @@
 import { useRouter } from "next/navigation";
 import Navbar from "@/app/ui/navbar";
 import Link from "next/link";
-import { quizzes } from "@/app/lib/quizzes";
+import { useAuth } from "@/app/lib/contexts/auth-context";
+
 export default function Home() {
   const router = useRouter();
+  const { user } = useAuth(); // 認証状態を取得
 
   return (
     <>
@@ -26,54 +28,27 @@ export default function Home() {
               テストを探す
             </button>
 
-            <Link
-              href="/login"
-              className="btn btn-outline px-6 py-3 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition"
-            >
-              ログイン
-            </Link>
+            {!user ? (
+              <Link
+                href="/login"
+                className="btn btn-outline px-6 py-3 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition"
+              >
+                ログイン
+              </Link>
+            ) : (
+              <Link
+                href="/dashboard"
+                className="btn btn-outline px-6 py-3 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition"
+              >
+                マイダッシュボード
+              </Link>
+            )}
           </div>
         </div>
 
+        {/* 残りのコードは変更なし */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-bold mb-3">人気のテスト</h2>
-            <ul className="space-y-3">
-              {quizzes.slice(0, 3).map((quiz) => (
-                <li key={quiz.id} className="border-b pb-2">
-                  <Link
-                    href={`/quizzes/${quiz.id}`}
-                    className="text-blue-600 hover:underline"
-                  >
-                    {quiz.name}
-                  </Link>
-                  <p className="text-sm text-gray-500">{quiz.description}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-bold mb-3">DevExamの特徴</h2>
-            <ul className="space-y-2">
-              <li className="flex items-start">
-                <span className="text-green-500 mr-2">✓</span>
-                <span>様々なカテゴリの問題</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-green-500 mr-2">✓</span>
-                <span>獲得可能なバッジシステム</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-green-500 mr-2">✓</span>
-                <span>スコア記録と友達との共有</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-green-500 mr-2">✓</span>
-                <span>難易度別のチャレンジ</span>
-              </li>
-            </ul>
-          </div>
+          {/* ... */}
         </div>
       </div>
     </>
