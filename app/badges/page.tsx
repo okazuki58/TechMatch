@@ -9,7 +9,8 @@ import { quizzes } from "@/app/lib/quizzes";
 import Image from "next/image";
 
 export default function BadgesPage() {
-  const { user, isLoading } = useAuth();
+  const { user, status } = useAuth();
+  const isLoading = status === "loading";
   const router = useRouter();
 
   // ユーザーがログインしていない場合はログインページにリダイレクト
@@ -41,7 +42,7 @@ export default function BadgesPage() {
 
   // 全てのバッジ（獲得済みと未獲得）を表示するためのデータ準備
   const allBadges = quizzes.map((quiz) => {
-    const userBadge = user.badges.find((badge) => badge.quizId === quiz.id);
+    const userBadge = user?.badges?.find((badge) => badge.quizId === quiz.id);
     return {
       id: quiz.id,
       name: quiz.badge.name,
@@ -63,13 +64,13 @@ export default function BadgesPage() {
           <div className="flex items-center mb-6">
             <h2 className="text-2xl font-bold">獲得済みバッジ</h2>
             <span className="ml-3 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-              {user.badges.length}/{allBadges.length}
+              {user?.badges?.length}/{allBadges.length}
             </span>
           </div>
 
-          {user.badges.length > 0 ? (
+          {user?.badges?.length && user?.badges?.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-              {user.badges.map((badge) => (
+              {user?.badges?.map((badge) => (
                 <div key={badge.id} className="flex justify-center">
                   <Badge badge={badge} size="lg" showDetails={true} />
                 </div>
