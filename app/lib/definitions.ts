@@ -146,3 +146,30 @@ export interface User {
   }[];
   jobApplications?: JobApplication[];
 }
+
+// 演習の定義
+export interface Exercise {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  evaluateSubmission: (submission: ExerciseSubmission) => Promise<ExerciseResult>;
+}
+
+// 演習の提出物
+export interface ExerciseSubmission {
+  userId: string;
+  exerciseId: string;
+  submittedAt: Date;
+  files: {
+    name: string;
+    content: string;
+  }[];
+}
+
+// 演習の評価結果
+export interface ExerciseResult {
+  success: boolean;
+  score: number;
+  feedback: string;
+}

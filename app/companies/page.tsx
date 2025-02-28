@@ -134,12 +134,6 @@ export default function CompaniesPage() {
             </div>
 
             <div>
-              <label
-                htmlFor="industry-filter"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                業種
-              </label>
               <select
                 id="industry-filter"
                 value={industryFilter}

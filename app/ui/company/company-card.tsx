@@ -68,10 +68,10 @@ export default function CompanyCard({
               </p>
 
               <div className="mt-3 flex flex-wrap gap-2">
-                <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
                   {company.industry}
                 </span>
-                <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">
+                <span className="px-3 py-1 bg-gray-100 text-gray-800 text-sm rounded-full">
                   {company.location}
                 </span>
                 {showJobCount && (
