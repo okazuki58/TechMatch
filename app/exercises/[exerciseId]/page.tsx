@@ -15,11 +15,62 @@ import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import type { Components } from "react-markdown";
 
 interface CodeBlockProps {
-  node?: any;
   inline?: boolean;
   className?: string;
   children: React.ReactNode;
+  [key: string]: unknown;
 }
+
+// 独立したコンポーネントとして定義
+const CodeBlock = ({
+  inline,
+  className,
+  children,
+  ...props
+}: CodeBlockProps) => {
+  const match = /language-(\w+)/.exec(className || "");
+  const code = String(children).replace(/\n$/, "");
+  const [copied, setCopied] = useState(false);
+
+  // コピー状態をリセットするタイマー
+  useEffect(() => {
+    if (copied) {
+      const timer = setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [copied]);
+
+  if (!inline && match) {
+    return (
+      <div className="relative group">
+        <button
+          onClick={() => {
+            navigator.clipboard.writeText(code);
+            setCopied(true);
+          }}
+          className="absolute top-2 right-2 bg-gray-700 hover:bg-gray-600 text-white rounded px-2 py-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          {copied ? "コピーしました" : "コピー"}
+        </button>
+        <SyntaxHighlighter
+          style={vscDarkPlus}
+          language={match[1]}
+          PreTag="div"
+          {...props}
+        >
+          {code}
+        </SyntaxHighlighter>
+      </div>
+    );
+  }
+  return (
+    <code className="bg-gray-100 px-1 py-0.5 rounded" {...props}>
+      {children}
+    </code>
+  );
+};
 
 export default function ExerciseDetailPage({
   params,
@@ -45,56 +96,7 @@ export default function ExerciseDetailPage({
         remarkPlugins={[remarkGfm]}
         components={
           {
-            code({
-              node,
-              inline,
-              className,
-              children,
-              ...props
-            }: CodeBlockProps) {
-              const match = /language-(\w+)/.exec(className || "");
-              const code = String(children).replace(/\n$/, "");
-              const [copied, setCopied] = useState(false);
-
-              // コピー状態をリセットするタイマー
-              useEffect(() => {
-                if (copied) {
-                  const timer = setTimeout(() => {
-                    setCopied(false);
-                  }, 2000);
-                  return () => clearTimeout(timer);
-                }
-              }, [copied]);
-
-              if (!inline && match) {
-                return (
-                  <div className="relative group">
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(code);
-                        setCopied(true);
-                      }}
-                      className="absolute top-2 right-2 bg-gray-700 hover:bg-gray-600 text-white rounded px-2 py-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      {copied ? "コピーしました" : "コピー"}
-                    </button>
-                    <SyntaxHighlighter
-                      style={vscDarkPlus}
-                      language={match[1]}
-                      PreTag="div"
-                      {...props}
-                    >
-                      {code}
-                    </SyntaxHighlighter>
-                  </div>
-                );
-              }
-              return (
-                <code className="bg-gray-100 px-1 py-0.5 rounded" {...props}>
-                  {children}
-                </code>
-              );
-            },
+            code: CodeBlock,
           } as Components
         }
       >

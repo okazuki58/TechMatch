@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useAuth } from "@/app/lib/contexts/auth-context";
 import { getExerciseById, getTestResults } from "@/app/lib/exercises";
 import { Exercise, TestResult } from "@/app/lib/definitions";
 import Navbar from "@/app/ui/navbar";
@@ -17,7 +16,6 @@ export default function ExerciseResultsPage({
   const { exerciseId } = params;
   const searchParams = useSearchParams();
   const submissionId = searchParams.get("submissionId");
-  const { user } = useAuth();
 
   const [exercise, setExercise] = useState<Exercise | null>(null);
   const [testResult, setTestResult] = useState<TestResult | null>(null);

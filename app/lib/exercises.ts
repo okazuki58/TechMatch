@@ -1,4 +1,4 @@
-import { Exercise, ExerciseSubmission, TestResult } from "./definitions";
+import { ExerciseSubmission, TestResult } from "./definitions";
 
 // 演習データ
 export const exercises = [
