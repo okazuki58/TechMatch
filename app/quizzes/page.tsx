@@ -92,19 +92,20 @@ export default function QuizzesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredQuizzes.map((quiz) => {
             // ユーザーがログインしている場合、バッジ獲得済みかチェック
-            const hasBadge = user?.badges.some(
-              (badge) => badge.quizId === quiz.id
-            );
+            const hasBadge =
+              user?.badges?.some((badge) => badge.quizId === quiz.id) || false;
 
             // ユーザーがこのテストを完了したことがあるかチェック
-            const hasCompleted = user?.quizResults.some(
-              (result) => result.quizId === quiz.id
-            );
+            const hasCompleted =
+              user?.quizResults?.some((result) => result.quizId === quiz.id) ||
+              false;
 
             // 最高スコアを計算
             const bestResult = user?.quizResults
-              .filter((result) => result.quizId === quiz.id)
-              .sort((a, b) => b.score - a.score)[0];
+              ? user.quizResults
+                  .filter((result) => result.quizId === quiz.id)
+                  .sort((a, b) => b.score - a.score)[0]
+              : null;
 
             const bestScore = bestResult
               ? Math.round((bestResult.score / bestResult.maxScore) * 100)

@@ -7,12 +7,12 @@ import { useAuth } from "@/app/lib/contexts/auth-context";
 import { useRouter } from "next/navigation";
 
 const Navbar: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = () => {
-    logout();
+    signOut();
     router.push("/");
   };
 
@@ -66,11 +66,13 @@ const Navbar: React.FC = () => {
                 >
                   <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
                     <span className="text-blue-700 font-medium">
-                      {user.username.charAt(0).toUpperCase()}
+                      {user.name?.charAt(0).toUpperCase() ||
+                        user.email?.charAt(0).toUpperCase() ||
+                        "U"}
                     </span>
                   </div>
                   <span className="ml-2 text-gray-700 flex items-center">
-                    {user.username}
+                    {user.name || user.email || "ユーザー"}
                   </span>
                 </button>
 
@@ -204,13 +206,15 @@ const Navbar: React.FC = () => {
               <div className="flex-shrink-0">
                 <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
                   <span className="text-blue-700 font-medium">
-                    {user.username.charAt(0).toUpperCase()}
+                    {user.name?.charAt(0).toUpperCase() ||
+                      user.email?.charAt(0).toUpperCase() ||
+                      "U"}
                   </span>
                 </div>
               </div>
               <div className="ml-3">
                 <div className="text-base font-medium text-gray-800">
-                  {user.username}
+                  {user.name || user.email || "ユーザー"}
                 </div>
                 <div className="text-sm font-medium text-gray-500">
                   {user.email}
