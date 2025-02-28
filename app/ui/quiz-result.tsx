@@ -88,7 +88,10 @@ const QuizResultScreen: React.FC<QuizResultsProps> = ({
             {result.maxScore}
           </p>
           <p className="text-sm text-gray-500">
-            完了日: {result.completedAt.toLocaleDateString()}
+            完了日:{" "}
+            {typeof result.completedAt === "string"
+              ? new Date(result.completedAt).toLocaleDateString()
+              : result.completedAt.toLocaleDateString()}
           </p>
         </div>
       </div>

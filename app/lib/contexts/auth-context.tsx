@@ -4,9 +4,18 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { Session } from "next-auth";
 
+// User型を拡張
+interface ExtendedUser {
+  id?: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  badges?: any[];
+  quizResults?: any[];
+}
 
 const AuthContext = createContext<{
-  user: Session["user"] | null;
+  user: ExtendedUser | null;
   status: "loading" | "authenticated" | "unauthenticated";
   signIn: (provider?: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -19,11 +28,11 @@ const AuthContext = createContext<{
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
-  const [user, setUser] = useState<Session["user"] | null>(null);
+  const [user, setUser] = useState<ExtendedUser | null>(null);
 
   useEffect(() => {
     if (session?.user) {
-      setUser(session.user);
+      setUser(session.user as ExtendedUser);
     } else {
       setUser(null);
     }

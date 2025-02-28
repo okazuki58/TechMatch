@@ -16,7 +16,8 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  // exercises     ExerciseSubmission[]
+  badges        Badge[]
+  quizResults   QuizResult[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -76,4 +77,26 @@ model ExerciseSubmission {
   // user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+}
+
+model QuizResult {
+  id          String   @id @default(cuid())
+  userId      String
+  quizId      String
+  score       Int
+  maxScore    Int
+  completedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Badge {
+  id          String   @id @default(cuid())
+  userId      String
+  quizId      String
+  name        String
+  description String
+  imageUrl    String
+  achievedAt  DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

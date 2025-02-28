@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Badge, QuizResult, QuizState } from "@/app/lib/definitions";
-import { saveQuizResult } from "@/app/lib/data";
 import { useAuth } from "@/app/lib/contexts/auth-context";
 import QuizCard from "@/app/ui/quiz-card";
 import Header from "@/app/ui/header";
@@ -11,9 +10,10 @@ import Navbar from "@/app/ui/navbar";
 import QuizResultScreen from "@/app/ui/quiz-result";
 import Link from "next/link";
 import { quizzes } from "@/app/lib/quizzes";
+import React from "react";
 
-export default function QuizPage({ params }: { params: { quizId: string } }) {
-  const { quizId } = params;
+export default function QuizPage(props: { params: { quizId: string } }) {
+  const params = useParams();
   const { user } = useAuth();
   const router = useRouter();
   const [quizEnded, setQuizEnded] = useState(false);
@@ -21,7 +21,7 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
   const [newBadge, setNewBadge] = useState<Badge | null>(null);
 
   // テストデータの取得
-  const quiz = quizzes.find((q) => q.id === quizId);
+  const quiz = quizzes.find((q) => q.id === params.quizId);
 
   // すべてのuseStateとuseEffectをコンポーネントのトップレベルに配置
   const [quizState, setQuizState] = useState<QuizState>({
@@ -121,40 +121,67 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
     }
   };
 
-  const finishQuiz = () => {
+  const finishQuiz = async () => {
     // テスト終了処理
     const maxScore = quizState.questions.length * 100;
+    const completedAt = new Date();
 
     if (user) {
       try {
-        // 結果を保存し、バッジ獲得をチェック
-        const result = saveQuizResult(quiz.id, quizState.score, maxScore);
-        setQuizResult(result.quizResult);
-        setNewBadge(result.newBadge);
+        // APIを呼び出してテスト結果を保存
+        const response = await fetch("/api/quizzes/results", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            quizId: quiz.id,
+            score: quizState.score,
+            maxScore,
+            completedAt,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("テスト結果の保存に失敗しました");
+        }
+
+        const data = await response.json();
+        setQuizResult(data.quizResult);
+        setNewBadge(data.newBadge);
       } catch (error) {
         console.error("テスト結果の保存中にエラーが発生しました:", error);
+        // エラーが発生しても、ユーザーには結果を表示
+        setQuizResult({
+          id: `temp-${Date.now()}`,
+          quizId: quiz.id,
+          quizName: quiz.name,
+          score: quizState.score,
+          maxScore,
+          completedAt,
+        });
       }
     } else {
       // 未ログインユーザーの場合は結果だけ表示
       setQuizResult({
-        id: quiz.id, // idプロパティを追加
+        id: `temp-${Date.now()}`,
         quizId: quiz.id,
         quizName: quiz.name,
         score: quizState.score,
-        maxScore: maxScore,
-        completedAt: new Date(),
+        maxScore,
+        completedAt,
       });
     }
 
     setQuizEnded(true);
   };
 
-  const handleContinueAfterResult = () => {
+  const handleContinueAfterResult = async () => {
     if (user) {
-      // ログイン済みユーザーはダッシュボードへ
+      // セッションを更新してからリダイレクト
+      await fetch("/api/auth/session?update=true");
       router.push("/dashboard");
     } else {
-      // 未ログインユーザーはテスト選択ページへ
       router.push("/quizzes");
     }
   };
