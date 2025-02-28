@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
-import { Session } from "next-auth";
+import { Badge, QuizResult } from "../definitions";
 
 // User型を拡張
 interface ExtendedUser {
@@ -10,8 +10,8 @@ interface ExtendedUser {
   name?: string | null;
   email?: string | null;
   image?: string | null;
-  badges?: any[];
-  quizResults?: any[];
+  badges?: Badge[];
+  quizResults?: QuizResult[];
 }
 
 const AuthContext = createContext<{

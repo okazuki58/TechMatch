@@ -12,7 +12,7 @@ import Link from "next/link";
 import { quizzes } from "@/app/lib/quizzes";
 import React from "react";
 
-export default function QuizPage(props: { params: { quizId: string } }) {
+export default function QuizPage() {
   const params = useParams();
   const { user } = useAuth();
   const router = useRouter();
