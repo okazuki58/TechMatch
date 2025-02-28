@@ -40,7 +40,7 @@ export default function LoginPage() {
       });
 
       router.push(callbackUrl);
-    } catch (error) {
+    } catch {
       setError("ログイン中にエラーが発生しました");
       setIsLoading(false);
     }

@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import Navbar from "@/app/ui/navbar";
 import Link from "next/link";
-import { quizzes } from "@/app/lib/quizzes";
 import { useAuth } from "@/app/lib/contexts/auth-context";
 
 export default function Home() {

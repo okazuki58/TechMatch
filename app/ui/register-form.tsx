@@ -40,8 +40,8 @@ export default function RegisterPage() {
 
       // 登録成功後はログインページへ
       router.push("/login?registered=true");
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : "不明なエラー");
     } finally {
       setIsLoading(false);
     }

@@ -2,27 +2,15 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
+import { Session } from "next-auth";
 
-interface AuthContextType {
-  user: {
-    id: string;
-    name?: string | null;
-    email?: string | null;
-    image?: string | null;
-    badges?: Array<{ quizId: string; [key: string]: any }>;
-    quizResults?: Array<{
-      quizId: string;
-      score: number;
-      maxScore: number;
-      [key: string]: any;
-    }>;
-  } | null;
+
+const AuthContext = createContext<{
+  user: Session["user"] | null;
   status: "loading" | "authenticated" | "unauthenticated";
   signIn: (provider?: string) => Promise<void>;
   signOut: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType>({
+}>({
   user: null,
   status: "loading",
   signIn: async () => {},
@@ -31,16 +19,11 @@ const AuthContext = createContext<AuthContextType>({
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
-  const [user, setUser] = useState<{
-    id: string;
-    name?: string | null;
-    email?: string | null;
-    image?: string | null;
-  } | null>(null);
+  const [user, setUser] = useState<Session["user"] | null>(null);
 
   useEffect(() => {
     if (session?.user) {
-      setUser(session.user as any);
+      setUser(session.user);
     } else {
       setUser(null);
     }
