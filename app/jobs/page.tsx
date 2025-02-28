@@ -126,14 +126,14 @@ export default function JobsPage() {
   }, [filters, jobs, applyFilters]);
 
   // 以下の関数は現在使用されていないが、将来的に使用する可能性があるため残しておく
-  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
-  };
+  // const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  //   const { name, value } = e.target;
+  //   setFilters((prev) => ({ ...prev, [name]: value }));
+  // };
 
-  const handleEligibleToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilters((prev) => ({ ...prev, showEligibleOnly: e.target.checked }));
-  };
+  // const handleEligibleToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setFilters((prev) => ({ ...prev, showEligibleOnly: e.target.checked }));
+  // };
 
   return (
     <>

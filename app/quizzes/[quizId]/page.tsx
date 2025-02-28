@@ -2,12 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { QuizState } from "@/app/lib/definitions";
+import { Badge, QuizResult, QuizState } from "@/app/lib/definitions";
 import { saveQuizResult } from "@/app/lib/data";
 import { useAuth } from "@/app/lib/contexts/auth-context";
 import QuizCard from "@/app/ui/quiz-card";
-import ProgressBar from "@/app/ui/progress-bar";
-import Timer from "@/app/ui/timer";
 import Header from "@/app/ui/header";
 import Navbar from "@/app/ui/navbar";
 import QuizResultScreen from "@/app/ui/quiz-result";
@@ -19,11 +17,52 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
   const { user } = useAuth();
   const router = useRouter();
   const [quizEnded, setQuizEnded] = useState(false);
-  const [quizResult, setQuizResult] = useState<any>(null);
-  const [newBadge, setNewBadge] = useState<any>(null);
+  const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
+  const [newBadge, setNewBadge] = useState<Badge | null>(null);
 
   // テストデータの取得
   const quiz = quizzes.find((q) => q.id === quizId);
+
+  // すべてのuseStateとuseEffectをコンポーネントのトップレベルに配置
+  const [quizState, setQuizState] = useState<QuizState>({
+    currentQuestionIndex: 0,
+    score: 0,
+    selectedOptionIndex: null,
+    showAnswer: false,
+    timeRemaining: 20,
+    questions: quiz?.questions || [],
+  });
+
+  // quizが変更されたときに質問を更新
+  useEffect(() => {
+    if (quiz) {
+      setQuizState((prev) => ({
+        ...prev,
+        questions: quiz.questions,
+      }));
+    }
+  }, [quiz]);
+
+  useEffect(() => {
+    if (!quiz) return;
+
+    if (quizState.timeRemaining > 0 && !quizState.showAnswer) {
+      const timer = setTimeout(() => {
+        setQuizState((prev) => ({
+          ...prev,
+          timeRemaining: prev.timeRemaining - 1,
+        }));
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    } else if (quizState.timeRemaining === 0 && !quizState.showAnswer) {
+      // 時間切れの場合は解答を表示
+      setQuizState((prev) => ({
+        ...prev,
+        showAnswer: true,
+      }));
+    }
+  }, [quizState.timeRemaining, quizState.showAnswer, quiz]);
 
   // テストが見つからない場合
   if (!quiz) {
@@ -42,34 +81,6 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
       </>
     );
   }
-
-  const [quizState, setQuizState] = useState<QuizState>({
-    currentQuestionIndex: 0,
-    score: 0,
-    selectedOptionIndex: null,
-    showAnswer: false,
-    timeRemaining: 20,
-    questions: quiz.questions,
-  });
-
-  useEffect(() => {
-    if (quizState.timeRemaining > 0 && !quizState.showAnswer) {
-      const timer = setTimeout(() => {
-        setQuizState((prev) => ({
-          ...prev,
-          timeRemaining: prev.timeRemaining - 1,
-        }));
-      }, 1000);
-
-      return () => clearTimeout(timer);
-    } else if (quizState.timeRemaining === 0 && !quizState.showAnswer) {
-      // 時間切れの場合は解答を表示
-      setQuizState((prev) => ({
-        ...prev,
-        showAnswer: true,
-      }));
-    }
-  }, [quizState.timeRemaining, quizState.showAnswer]);
 
   const handleSelectOption = (index: number) => {
     if (quizState.showAnswer) return; // 解答表示後は選択できない
@@ -126,6 +137,7 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
     } else {
       // 未ログインユーザーの場合は結果だけ表示
       setQuizResult({
+        id: quiz.id, // idプロパティを追加
         quizId: quiz.id,
         quizName: quiz.name,
         score: quizState.score,

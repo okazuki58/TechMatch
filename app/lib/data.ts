@@ -1,7 +1,5 @@
 // app/lib/data.ts
 import {
-  QuizQuestion,
-  Quiz,
   User,
   Badge,
   QuizCategory,
@@ -111,15 +109,20 @@ export let currentUser: User | null = mockUsers[0];
 
 // モック関数: ユーザーログイン
 export const loginUser = (email: string, password: string): User | null => {
-  // 実際はパスワード認証などが入る
+  // モックデータでもパスワード検証を行う
   const user = mockUsers.find((u) => u.email === email);
-  if (user) {
+
+  // 簡易的なパスワード検証（実際の実装ではハッシュ化と安全な比較が必要）
+  if (user && password.length > 0) {
+    // デモ用に単純な検証
     currentUser = {
       ...user,
       lastLogin: new Date(),
     };
+    return currentUser;
   }
-  return currentUser;
+
+  return null; // 認証失敗
 };
 
 // モック関数: ユーザーログアウト

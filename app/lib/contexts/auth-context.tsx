@@ -9,7 +9,7 @@ import {
   ReactNode,
 } from "react";
 import { User } from "../definitions";
-import { currentUser, loginUser, logoutUser, mockUsers } from "../data";
+import { currentUser, loginUser, logoutUser } from "../data";
 
 interface AuthContextType {
   user: User | null;

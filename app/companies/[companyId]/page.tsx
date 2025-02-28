@@ -6,7 +6,6 @@ import Image from "next/image";
 import Navbar from "@/app/ui/navbar";
 import JobCard from "@/app/ui/company/job-card";
 import { Company, Job } from "@/app/lib/definitions";
-import { formatDate } from "@/app/lib/utils";
 
 // 仮のデータ取得関数
 const fetchCompany = async (companyId: string): Promise<Company | null> => {
@@ -15,7 +14,8 @@ const fetchCompany = async (companyId: string): Promise<Company | null> => {
     {
       id: "company-001",
       name: "テックイノベーション株式会社",
-      description: "最先端のWeb技術を活用したサービス開発を行うテクノロジー企業です。チームの多様性を重視し、リモートワークを推進しています。",
+      description:
+        "最先端のWeb技術を活用したサービス開発を行うテクノロジー企業です。チームの多様性を重視し、リモートワークを推進しています。",
       industry: "Webサービス",
       location: "東京",
       employeeCount: 120,
@@ -41,12 +41,13 @@ const fetchCompany = async (companyId: string): Promise<Company | null> => {
         • 書籍購入支援
         • 技術カンファレンス参加支援
         • 社内勉強会
-      `
+      `,
     },
     {
       id: "company-002",
       name: "フューチャーソフト",
-      description: "AI・機械学習を活用したソリューションを提供する企業です。未経験からのエンジニア育成に力を入れています。",
+      description:
+        "AI・機械学習を活用したソリューションを提供する企業です。未経験からのエンジニア育成に力を入れています。",
       industry: "AI・ソフトウェア開発",
       location: "大阪",
       employeeCount: 85,
@@ -70,12 +71,13 @@ const fetchCompany = async (companyId: string): Promise<Company | null> => {
         • 週1回のナレッジシェアセッション
         • 年2回のハッカソン開催
         • 研究開発費補助制度
-      `
+      `,
     },
     {
       id: "company-003",
       name: "クラウドシステムズ",
-      description: "クラウドインフラの構築・運用を専門とするITサービス企業です。エンジニアのスキルアップを支援する充実した研修制度があります。",
+      description:
+        "クラウドインフラの構築・運用を専門とするITサービス企業です。エンジニアのスキルアップを支援する充実した研修制度があります。",
       industry: "クラウドサービス",
       location: "福岡",
       employeeCount: 50,
@@ -98,12 +100,13 @@ const fetchCompany = async (companyId: string): Promise<Company | null> => {
         • 技術書籍購入補助
         • 月1回のクラウド技術勉強会
         • メンター制度
-      `
+      `,
     },
     {
       id: "company-004",
       name: "デジタルクリエイト",
-      description: "Webデザインからアプリ開発まで、幅広いデジタルサービスを提供するクリエイティブ企業です。若手の意見を積極的に取り入れる風通しの良い社風が特徴です。",
+      description:
+        "Webデザインからアプリ開発まで、幅広いデジタルサービスを提供するクリエイティブ企業です。若手の意見を積極的に取り入れる風通しの良い社風が特徴です。",
       industry: "デザイン・開発",
       location: "名古屋",
       employeeCount: 65,
@@ -128,11 +131,11 @@ const fetchCompany = async (companyId: string): Promise<Company | null> => {
         • リモートワーク可（週3日まで）
         • フリーアドレス
         • カジュアルな社内環境
-      `
-    }
+      `,
+    },
   ];
-  
-  return mockCompanies.find(company => company.id === companyId) || null;
+
+  return mockCompanies.find((company) => company.id === companyId) || null;
 };
 
 const fetchCompanyJobs = async (companyId: string): Promise<Job[]> => {
@@ -142,67 +145,61 @@ const fetchCompanyJobs = async (companyId: string): Promise<Job[]> => {
       id: "job-001",
       companyId: "company-001",
       title: "フロントエンドエンジニア",
-      description: "Reactを使用したWebアプリケーション開発を担当していただきます。",
+      description:
+        "Reactを使用したWebアプリケーション開発を担当していただきます。",
       requirements: [
         "HTML/CSS/JavaScriptの基本的な知識",
         "Reactの実務経験（1年以上）",
-        "GitHubを使用したチーム開発経験"
+        "GitHubを使用したチーム開発経験",
       ],
-      preferredSkills: [
-        "TypeScript",
-        "Next.js",
-        "Tailwind CSS"
-      ],
+      preferredSkills: ["TypeScript", "Next.js", "Tailwind CSS"],
       location: "東京（リモート可）",
       employmentType: "full-time",
       experienceLevel: "mid",
       salary: {
         min: 400000,
         max: 700000,
-        currency: "JPY"
+        currency: "JPY",
       },
       requiredQuizzes: [
         {
           quizId: "quiz-001",
-          minimumScore: 70
-        }
+          minimumScore: 70,
+        },
       ],
       postedAt: new Date("2023-06-01"),
       updatedAt: new Date("2023-06-01"),
-      isActive: true
+      isActive: true,
     },
     {
       id: "job-002",
       companyId: "company-001",
       title: "バックエンドエンジニア",
-      description: "Node.jsとExpressを使用したAPIの設計・開発を担当していただきます。",
+      description:
+        "Node.jsとExpressを使用したAPIの設計・開発を担当していただきます。",
       requirements: [
         "JavaScript/TypeScriptの基本的な知識",
         "Node.jsの実務経験（1年以上）",
-        "RESTful APIの設計経験"
+        "RESTful APIの設計経験",
       ],
-      preferredSkills: [
-        "Express.js",
-        "MongoDB",
-        "GraphQL"
-      ],
+      preferredSkills: ["Express.js", "MongoDB", "GraphQL"],
       location: "東京（リモート可）",
       employmentType: "full-time",
       experienceLevel: "mid",
       salary: {
         min: 450000,
         max: 750000,
-        currency: "JPY"
+        currency: "JPY",
       },
       requiredQuizzes: [
         {
           quizId: "quiz-002",
-          minimumScore: 70
-        }
+          minimumScore: 70,
+        },
       ],
       postedAt: new Date("2023-05-15"),
       updatedAt: new Date("2023-05-20"),
-      isActive: true
+      isActive: true,
     },
     {
       id: "job-003",
@@ -212,12 +209,12 @@ const fetchCompanyJobs = async (companyId: string): Promise<Job[]> => {
       requirements: [
         "Pythonの実務経験（2年以上）",
         "機械学習の基礎知識",
-        "PyTorchまたはTensorFlowの使用経験"
+        "PyTorchまたはTensorFlowの使用経験",
       ],
       preferredSkills: [
         "自然言語処理の知識",
         "BERTなどの言語モデルの実装経験",
-        "クラウド環境（AWS/GCP）での機械学習モデルのデプロイ経験"
+        "クラウド環境（AWS/GCP）での機械学習モデルのデプロイ経験",
       ],
       location: "大阪",
       employmentType: "full-time",
@@ -225,24 +222,28 @@ const fetchCompanyJobs = async (companyId: string): Promise<Job[]> => {
       salary: {
         min: 600000,
         max: 900000,
-        currency: "JPY"
+        currency: "JPY",
       },
       requiredQuizzes: [
         {
           quizId: "quiz-003",
-          minimumScore: 80
-        }
+          minimumScore: 80,
+        },
       ],
       postedAt: new Date("2023-05-10"),
       updatedAt: new Date("2023-05-10"),
-      isActive: true
-    }
+      isActive: true,
+    },
   ] as Job[]; // 型アサーションを追加
-  
-  return mockJobs.filter(job => job.companyId === companyId);
+
+  return mockJobs.filter((job) => job.companyId === companyId);
 };
 
-export default function CompanyPage({ params }: { params: { companyId: string } }) {
+export default function CompanyPage({
+  params,
+}: {
+  params: { companyId: string };
+}) {
   const { companyId } = params;
   const [company, setCompany] = useState<Company | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -253,9 +254,9 @@ export default function CompanyPage({ params }: { params: { companyId: string } 
       try {
         const [companyData, jobsData] = await Promise.all([
           fetchCompany(companyId),
-          fetchCompanyJobs(companyId)
+          fetchCompanyJobs(companyId),
         ]);
-        
+
         setCompany(companyData);
         setJobs(jobsData);
       } catch (error) {
@@ -287,9 +288,16 @@ export default function CompanyPage({ params }: { params: { companyId: string } 
         <Navbar />
         <div className="container mx-auto px-4 py-8 max-w-6xl">
           <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-700">企業が見つかりませんでした</h2>
-            <p className="mt-2 text-gray-500">指定された企業IDは存在しないか、削除された可能性があります。</p>
-            <Link href="/companies" className="mt-4 inline-block text-blue-600 hover:underline">
+            <h2 className="text-2xl font-bold text-gray-700">
+              企業が見つかりませんでした
+            </h2>
+            <p className="mt-2 text-gray-500">
+              指定された企業IDは存在しないか、削除された可能性があります。
+            </p>
+            <Link
+              href="/companies"
+              className="mt-4 inline-block text-blue-600 hover:underline"
+            >
               企業一覧に戻る
             </Link>
           </div>
@@ -299,7 +307,9 @@ export default function CompanyPage({ params }: { params: { companyId: string } 
   }
 
   // 企業ロゴのパスを設定（ない場合はデフォルト画像）
-  const logoPath = company.logoUrl || `/company/company0${(parseInt(company.id.split('-')[1]) % 4) + 1}.jpg`;
+  const logoPath =
+    company.logoUrl ||
+    `/company/company0${(parseInt(company.id.split("-")[1]) % 4) + 1}.jpg`;
 
   return (
     <>
@@ -353,49 +363,64 @@ export default function CompanyPage({ params }: { params: { companyId: string } 
               </div>
             </div>
           </div>
-          
+
           <div className="p-6">
             <div className="mt-4">
-              <a 
-                href={company.websiteUrl} 
-                target="_blank" 
+              <a
+                href={company.websiteUrl}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:underline flex items-center"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
                 </svg>
                 企業サイトを見る
               </a>
             </div>
-            
+
             <div className="mt-6">
               <h2 className="text-xl font-bold mb-3">企業概要</h2>
-              <p className="text-gray-700 whitespace-pre-line">{(company as any).about || company.description}</p>
+              <p className="text-gray-700 whitespace-pre-line">
+                {company.about || company.description}
+              </p>
             </div>
           </div>
         </div>
 
         <div className="mb-8">
           <h2 className="text-2xl font-bold mb-4">求人情報</h2>
-          
+
           {jobs.length > 0 ? (
             <div className="grid grid-cols-1 gap-6">
-              {jobs.map(job => (
-                <JobCard 
-                  key={job.id} 
-                  job={job} 
+              {jobs.map((job) => (
+                <JobCard
+                  key={job.id}
+                  job={job}
                   company={{
                     id: company.id,
                     name: company.name,
-                    logoUrl: company.logoUrl
-                  } as any}
+                    logoUrl: company.logoUrl,
+                  }}
                 />
               ))}
             </div>
           ) : (
             <div className="bg-gray-50 rounded-lg p-8 text-center">
-              <p className="text-gray-500">現在、この企業からの求人情報はありません。</p>
+              <p className="text-gray-500">
+                現在、この企業からの求人情報はありません。
+              </p>
             </div>
           )}
         </div>

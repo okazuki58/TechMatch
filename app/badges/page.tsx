@@ -39,9 +39,6 @@ export default function BadgesPage() {
     );
   }
 
-  // ユーザーが獲得したバッジのIDリスト
-  const userBadgeIds = user.badges.map((badge) => badge.quizId);
-
   // 全てのバッジ（獲得済みと未獲得）を表示するためのデータ準備
   const allBadges = quizzes.map((quiz) => {
     const userBadge = user.badges.find((badge) => badge.quizId === quiz.id);
