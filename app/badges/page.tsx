@@ -5,7 +5,8 @@ import { useAuth } from "@/app/lib/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import Navbar from "@/app/ui/navbar";
 import Badge from "@/app/ui/badge";
-import { quizzes } from "@/app/lib/data";
+import { quizzes } from "@/app/lib/quizzes";
+import Image from "next/image";
 
 export default function BadgesPage() {
   const { user, isLoading } = useAuth();
@@ -105,9 +106,11 @@ export default function BadgesPage() {
                   >
                     <div className="relative w-16 h-16 mb-2 grayscale">
                       <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                        <img
-                          src={badge.imageUrl || "/badges/default-badge.svg"}
+                        <Image
+                          src={badge.imageUrl}
                           alt={badge.name}
+                          width={100}
+                          height={100}
                           className="w-full h-full object-cover"
                         />
                         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">

@@ -6,7 +6,6 @@ import Image from "next/image";
 import Navbar from "@/app/ui/navbar";
 import JobCard from "@/app/ui/company/job-card";
 import { Company, Job } from "@/app/lib/definitions";
-import { formatDate } from "@/app/lib/utils";
 
 // 仮のデータ取得関数
 const fetchCompany = async (companyId: string): Promise<Company | null> => {

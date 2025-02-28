@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/app/lib/contexts/auth-context";
 import { getJobs, getEligibleJobs } from "@/app/lib/jobs";
 import { Job } from "@/app/lib/definitions";
@@ -52,17 +52,20 @@ export default function JobsPage() {
     showEligibleOnly: false,
   });
   const [employmentTypes, setEmploymentTypes] = useState<string[]>([]);
+  const [experienceLevels, setExperienceLevels] = useState<string[]>([]);
+
   const toggleEmploymentType = (type: string) => {
     setEmploymentTypes((prev) =>
       prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
     );
   };
-  const [experienceLevels, setExperienceLevels] = useState<string[]>([]);
+
   const toggleExperienceLevel = (level: string) => {
     setExperienceLevels((prev) =>
       prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level]
     );
   };
+
   const resetFilters = () => {
     setSearchTerm("");
     setSalaryRange({});
@@ -75,6 +78,35 @@ export default function JobsPage() {
     });
   };
 
+  // applyFilters関数をuseCallbackでメモ化
+  const applyFilters = useCallback(
+    (jobList: Job[]) => {
+      let result = [...jobList];
+
+      // 経験レベルでフィルタリング
+      if (filters.experienceLevel) {
+        result = result.filter(
+          (job) => job.experienceLevel === filters.experienceLevel
+        );
+      }
+
+      // 雇用形態でフィルタリング
+      if (filters.employmentType) {
+        result = result.filter(
+          (job) => job.employmentType === filters.employmentType
+        );
+      }
+
+      // 応募資格のある求人のみ表示
+      if (filters.showEligibleOnly && user?.quizResults) {
+        result = getEligibleJobs(user.quizResults);
+      }
+
+      setFilteredJobs(result);
+    },
+    [filters, user?.quizResults]
+  );
+
   useEffect(() => {
     // 全ての求人を取得
     const allJobs = getJobs();
@@ -86,38 +118,14 @@ export default function JobsPage() {
     // 初期表示用にフィルタリングを適用
     applyFilters(allJobs);
     setIsLoading(false);
-  }, []);
+  }, [applyFilters]);
 
   // フィルターの変更時に求人を再フィルタリング
   useEffect(() => {
     applyFilters(jobs);
-  }, [filters, jobs]);
+  }, [filters, jobs, applyFilters]);
 
-  const applyFilters = (jobList: Job[]) => {
-    let result = [...jobList];
-
-    // 経験レベルでフィルタリング
-    if (filters.experienceLevel) {
-      result = result.filter(
-        (job) => job.experienceLevel === filters.experienceLevel
-      );
-    }
-
-    // 雇用形態でフィルタリング
-    if (filters.employmentType) {
-      result = result.filter(
-        (job) => job.employmentType === filters.employmentType
-      );
-    }
-
-    // 応募資格のある求人のみ表示
-    if (filters.showEligibleOnly && user?.quizResults) {
-      result = getEligibleJobs(user.quizResults);
-    }
-
-    setFilteredJobs(result);
-  };
-
+  // 以下の関数は現在使用されていないが、将来的に使用する可能性があるため残しておく
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
