@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { runTests } from "@/app/lib/test-runner";
+import { TestDetail } from "@/app/lib/definitions";
 
 const prisma = new PrismaClient();
 
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
           passed: result.passed,
           score: result.score,
           maxScore: 100,
-          details: result.details,
+          details: result.details as TestDetail[],
           feedback: result.passed
             ? "おめでとうございます！すべてのテストに合格しました。"
             : "いくつかのテストに失敗しました。エラーメッセージを確認して修正してください。",
@@ -89,13 +90,6 @@ async function updateSubmissionStatus(
     where: { id: submissionId },
     data: { status },
   });
-}
-
-interface TestDetail {
-  name: string;
-  passed: boolean;
-  message?: string;
-  error?: string;
 }
 
 interface TestResultData {
