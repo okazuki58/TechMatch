@@ -38,6 +38,12 @@ const Navbar: React.FC = () => {
                 スキルテスト
               </Link>
               <Link
+                href="/exercises"
+                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              >
+                演習問題
+              </Link>
+              <Link
                 href="/jobs"
                 className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
               >

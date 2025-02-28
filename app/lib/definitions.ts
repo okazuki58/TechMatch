@@ -147,29 +147,47 @@ export interface User {
   jobApplications?: JobApplication[];
 }
 
-// 演習の定義
 export interface Exercise {
   id: string;
   title: string;
   description: string;
+  difficulty: string; // "beginner" | "intermediate" | "advanced" から変更
   category: string;
-  evaluateSubmission: (submission: ExerciseSubmission) => Promise<ExerciseResult>;
+  tags: string[];
+  testDescription: string;
+  createdAt: Date;
+  updatedAt: Date;
+  instructions?: string;
+  setupGuide?: string;
 }
 
-// 演習の提出物
 export interface ExerciseSubmission {
-  userId: string;
+  id: string;
   exerciseId: string;
+  userId: string;
+  repositoryUrl: string;
+  status: "pending" | "testing" | "completed" | "failed";
   submittedAt: Date;
-  files: {
-    name: string;
-    content: string;
-  }[];
+  results: TestResult | null;
 }
 
-// 演習の評価結果
-export interface ExerciseResult {
-  success: boolean;
+export interface TestResult {
+  id: string;
+  submissionId: string;
+  exerciseId: string;
+  userId: string;
+  passed: boolean;
   score: number;
+  maxScore: number;
+  details: TestDetail[];
   feedback: string;
+  completedAt: Date;
+}
+
+export interface TestDetail {
+  testName: string;
+  passed: boolean;
+  message: string;
+  expected?: string;
+  actual?: string;
 }
