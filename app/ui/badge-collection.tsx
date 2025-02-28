@@ -9,7 +9,7 @@ interface BadgeCollectionProps {
 
 const BadgeCollection: React.FC<BadgeCollectionProps> = ({
   badges,
-  emptyMessage = "まだバッジを獲得していません。クイズに挑戦してバッジを集めましょう！",
+  emptyMessage = "まだバッジを獲得していません。テストに挑戦してバッジを集めましょう！",
 }) => {
   if (badges.length === 0) {
     return (

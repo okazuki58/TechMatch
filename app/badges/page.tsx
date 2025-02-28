@@ -80,13 +80,13 @@ export default function BadgesPage() {
           ) : (
             <div className="bg-white rounded-xl shadow-sm p-8 text-center">
               <p className="text-gray-500 mb-4">
-                まだバッジを獲得していません。クイズに挑戦しましょう！
+                まだバッジを獲得していません。テストに挑戦しましょう！
               </p>
               <button
                 onClick={() => router.push("/quizzes")}
                 className="btn btn-primary"
               >
-                クイズに挑戦する
+                テストに挑戦する
               </button>
             </div>
           )}
@@ -151,7 +151,7 @@ export default function BadgesPage() {
             バッジについて
           </h3>
           <p className="text-blue-700">
-            バッジはクイズでの成績や特定の条件を達成することで獲得できます。
+            バッジはテストでの成績や特定の条件を達成することで獲得できます。
             コレクションを完成させて、あなたの知識をアピールしましょう！
           </p>
         </div>

@@ -22,21 +22,21 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
   const [quizResult, setQuizResult] = useState<any>(null);
   const [newBadge, setNewBadge] = useState<any>(null);
 
-  // クイズデータの取得
+  // テストデータの取得
   const quiz = quizzes.find((q) => q.id === quizId);
 
-  // クイズが見つからない場合
+  // テストが見つからない場合
   if (!quiz) {
     return (
       <>
         <Navbar />
         <div className="container mx-auto px-4 py-8 max-w-3xl text-center">
-          <h1 className="text-3xl font-bold mb-6">クイズが見つかりません</h1>
+          <h1 className="text-3xl font-bold mb-6">テストが見つかりません</h1>
           <p className="mb-6">
-            指定されたクイズIDが存在しないか、削除された可能性があります。
+            指定されたテストIDが存在しないか、削除された可能性があります。
           </p>
           <Link href="/quizzes" className="btn btn-primary">
-            クイズ一覧に戻る
+            テスト一覧に戻る
           </Link>
         </div>
       </>
@@ -111,7 +111,7 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
   };
 
   const finishQuiz = () => {
-    // クイズ終了処理
+    // テスト終了処理
     const maxScore = quizState.questions.length * 100;
 
     if (user) {
@@ -121,7 +121,7 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
         setQuizResult(result.quizResult);
         setNewBadge(result.newBadge);
       } catch (error) {
-        console.error("クイズ結果の保存中にエラーが発生しました:", error);
+        console.error("テスト結果の保存中にエラーが発生しました:", error);
       }
     } else {
       // 未ログインユーザーの場合は結果だけ表示
@@ -142,7 +142,7 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
       // ログイン済みユーザーはダッシュボードへ
       router.push("/dashboard");
     } else {
-      // 未ログインユーザーはクイズ選択ページへ
+      // 未ログインユーザーはテスト選択ページへ
       router.push("/quizzes");
     }
   };
@@ -175,7 +175,7 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
                   d="M15 19l-7-7 7-7"
                 />
               </svg>
-              クイズ一覧に戻る
+              テスト一覧に戻る
             </Link>
             <h1 className="text-2xl font-bold mt-3">{quiz.name}</h1>
             <div className="flex items-center mt-1 text-sm text-gray-500">
@@ -218,7 +218,7 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
               <div className="mt-6 bg-blue-50 p-4 rounded-lg">
                 <p className="text-blue-700 text-sm">
                   <strong>ログインするとバッジが獲得できます！</strong>{" "}
-                  クイズの進捗や結果を保存して、友達とシェアしましょう。
+                  テストの進捗や結果を保存して、友達とシェアしましょう。
                 </p>
                 <div className="mt-2 flex space-x-3">
                   <button

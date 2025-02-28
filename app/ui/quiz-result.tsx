@@ -41,7 +41,7 @@ const QuizResultScreen: React.FC<QuizResultsProps> = ({
 
   return (
     <div className="bg-white rounded-xl shadow-md p-6 md:p-8 max-w-lg mx-auto">
-      <h2 className="text-2xl font-bold text-center mb-6">クイズ結果</h2>
+      <h2 className="text-2xl font-bold text-center mb-6">テスト結果</h2>
 
       <div
         className={`${bgClass} ${textClass} p-4 rounded-lg text-center mb-6`}

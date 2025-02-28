@@ -23,9 +23,7 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between h-16">
           <div className="flex">
             <Link href="/" className="flex-shrink-0 flex items-center">
-              <span className="text-xl font-bold text-blue-700">
-                クイズマスター
-              </span>
+              <span className="text-xl font-bold text-blue-700">DevExam</span>
             </Link>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               <Link
@@ -38,7 +36,19 @@ const Navbar: React.FC = () => {
                 href="/quizzes"
                 className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
               >
-                クイズ一覧
+                スキルテスト
+              </Link>
+              <Link
+                href="/jobs"
+                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              >
+                求人情報
+              </Link>
+              <Link
+                href="/companies"
+                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              >
+                企業一覧
               </Link>
               <Link
                 href="/leaderboard"
@@ -167,7 +177,19 @@ const Navbar: React.FC = () => {
             href="/quizzes"
             className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800"
           >
-            クイズ一覧
+            スキルテスト
+          </Link>
+          <Link
+            href="/jobs"
+            className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800"
+          >
+            求人情報
+          </Link>
+          <Link
+            href="/companies"
+            className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800"
+          >
+            企業一覧
           </Link>
           <Link
             href="/leaderboard"

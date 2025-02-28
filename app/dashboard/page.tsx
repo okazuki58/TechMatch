@@ -43,10 +43,10 @@ export default function Dashboard() {
           {/* 統計カード */}
           <div className="bg-white rounded-xl shadow-sm p-6">
             <h2 className="text-lg font-medium text-gray-800 mb-4">
-              クイズ統計
+              テスト統計
             </h2>
             <div className="flex justify-between mb-2">
-              <span className="text-gray-600">完了したクイズ</span>
+              <span className="text-gray-600">完了したテスト</span>
               <span className="font-medium">{user.quizResults.length}</span>
             </div>
             <div className="flex justify-between mb-2">
@@ -95,18 +95,18 @@ export default function Dashboard() {
                   ))}
               </div>
             ) : (
-              <p className="text-gray-500">まだクイズに挑戦していません</p>
+              <p className="text-gray-500">まだテストに挑戦していません</p>
             )}
           </div>
 
-          {/* おすすめのクイズ */}
+          {/* おすすめのテスト */}
           <div className="bg-white rounded-xl shadow-sm p-6">
             <h2 className="text-lg font-medium text-gray-800 mb-4">
-              おすすめのクイズ
+              おすすめのテスト
             </h2>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">一般教養クイズ</span>
+                <span className="text-gray-600">一般教養テスト</span>
                 <Link
                   href="/quizzes/quiz-001"
                   className="text-sm text-blue-600 hover:underline"
@@ -115,7 +115,7 @@ export default function Dashboard() {
                 </Link>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">テックマスタークイズ</span>
+                <span className="text-gray-600">テックマスターテスト</span>
                 <Link
                   href="/quizzes/quiz-002"
                   className="text-sm text-blue-600 hover:underline"
@@ -138,9 +138,9 @@ export default function Dashboard() {
           <BadgeCollection badges={user.badges} />
         </div>
 
-        {/* クイズ履歴 */}
+        {/* テスト履歴 */}
         <div>
-          <h2 className="text-2xl font-bold mb-6">クイズ履歴</h2>
+          <h2 className="text-2xl font-bold mb-6">テスト履歴</h2>
           {user.quizResults.length > 0 ? (
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
               <table className="min-w-full divide-y divide-gray-200">
@@ -150,7 +150,7 @@ export default function Dashboard() {
                       scope="col"
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      クイズ名
+                      テスト名
                     </th>
                     <th
                       scope="col"
@@ -206,10 +206,10 @@ export default function Dashboard() {
           ) : (
             <div className="bg-white rounded-xl shadow-sm p-8 text-center">
               <p className="text-gray-500 mb-4">
-                まだクイズに挑戦していません。
+                まだテストに挑戦していません。
               </p>
               <Link href="/quizzes" className="inline-block btn btn-primary">
-                クイズに挑戦する
+                テストに挑戦する
               </Link>
             </div>
           )}

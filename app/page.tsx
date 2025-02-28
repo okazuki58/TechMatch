@@ -12,11 +12,9 @@ export default function Home() {
       <Navbar />
       <div className="container mx-auto px-4 py-8 max-w-3xl">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-4">
-            クイズマスターへようこそ！
-          </h1>
+          <h1 className="text-3xl font-bold mb-4">DevExamへようこそ！</h1>
           <p className="text-gray-600 mb-6">
-            様々なカテゴリのクイズに挑戦して、知識を試してみましょう。
+            様々なカテゴリのテストに挑戦して、知識を試してみましょう。
             バッジを集めて、友達とスコアを競い合おう！
           </p>
 
@@ -25,7 +23,7 @@ export default function Home() {
               onClick={() => router.push("/quizzes")}
               className="btn btn-primary px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
             >
-              クイズを探す
+              テストを探す
             </button>
 
             <Link
@@ -39,7 +37,7 @@ export default function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-bold mb-3">人気のクイズ</h2>
+            <h2 className="text-xl font-bold mb-3">人気のテスト</h2>
             <ul className="space-y-3">
               {quizzes.slice(0, 3).map((quiz) => (
                 <li key={quiz.id} className="border-b pb-2">
@@ -56,7 +54,7 @@ export default function Home() {
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-bold mb-3">クイズマスターの特徴</h2>
+            <h2 className="text-xl font-bold mb-3">DevExamの特徴</h2>
             <ul className="space-y-2">
               <li className="flex items-start">
                 <span className="text-green-500 mr-2">✓</span>

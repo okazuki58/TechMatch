@@ -6,8 +6,8 @@ import { AuthProvider } from "./lib/contexts/auth-context";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "クイズマスター | Next.js Quiz App",
-  description: "Next.js、Tailwind CSS、TypeScriptで作成したクイズアプリ",
+  title: "DevExam | Next.js Quiz App",
+  description: "Next.js、Tailwind CSS、TypeScriptで作成したテストアプリ",
 };
 
 export default function RootLayout({
