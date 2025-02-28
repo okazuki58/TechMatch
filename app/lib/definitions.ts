@@ -182,6 +182,8 @@ export interface TestResult {
   details: TestDetail[];
   feedback: string;
   completedAt: Date;
+  createdAt: Date;
+  status: string;
 }
 
 export interface TestDetail {

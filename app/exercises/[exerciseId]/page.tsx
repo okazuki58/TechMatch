@@ -121,7 +121,7 @@ export default function ExerciseDetailPage({
   }, [exerciseId]);
 
   const handleSubmit = async (repositoryUrl: string) => {
-    if (!user) {
+    if (!user || !user.id) {
       router.push("/login");
       return;
     }

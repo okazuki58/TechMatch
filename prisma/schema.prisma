@@ -16,7 +16,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  exercises     ExerciseSubmission[]
+  // exercises     ExerciseSubmission[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -60,7 +60,7 @@ model Exercise {
   title       String
   description String
   difficulty  String    // "beginner", "intermediate", "advanced"
-  submissions ExerciseSubmission[]
+  // submissions ExerciseSubmission[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
@@ -72,8 +72,8 @@ model ExerciseSubmission {
   repositoryUrl String
   status       String    // "pending", "completed", "failed"
   results      String?   // JSON形式のテスト結果
-  exercise     Exercise  @relation(fields: [exerciseId], references: [id])
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // exercise     Exercise  @relation(fields: [exerciseId], references: [id])
+  // user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }

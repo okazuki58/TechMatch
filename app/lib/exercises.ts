@@ -40,6 +40,25 @@ ${exercise.description}
 2. Todoアイテムの完了/未完了の切り替え機能を実装する
 3. Todoアイテムの削除機能を実装する
 
+## 技術的要件（自動テストのため）
+
+以下の要素とクラス名を使用してください：
+
+- 入力フィールド: \`<input id="todo-input">\`
+- 追加ボタン: \`<button id="add-button">\`
+- Todoリスト: \`<ul id="todo-list">\`
+- Todoアイテム: \`<li class="todo-item">\`
+- Todoテキスト: \`<span class="todo-text">\`
+- 完了状態のクラス: \`class="completed"\`
+- 削除ボタン: \`<button class="delete-btn">\`
+
+## 機能の詳細
+
+1. 入力フィールドにテキストを入力し、追加ボタンをクリックするとタスクが追加される
+2. タスクのテキスト部分をクリックすると、完了/未完了状態が切り替わる（完了状態では取り消し線が表示される）
+3. 削除ボタンをクリックすると、タスクが削除される
+4. ページを再読み込みしても、タスクが保持される（LocalStorageを使用）
+
 ## セットアップ手順
 
 1. リポジトリをクローン:
@@ -60,6 +79,11 @@ npm install
 \`\`\`bash
 npm start
 \`\`\`
+
+## 提出方法
+
+完成したコードをGitHubリポジトリにプッシュし、リポジトリのURLを提出してください。
+自動テストが実行され、結果が表示されます。
   `;
 }
 
@@ -117,62 +141,45 @@ export async function getExerciseById(id: string) {
   };
 }
 
-// 演習提出関数
+// クライアントサイドから呼び出すAPI関数
 export async function submitExercise(
   userId: string,
   exerciseId: string,
   repositoryUrl: string
 ): Promise<ExerciseSubmission> {
-  // 演習提出の処理（既存のコード）
-  const submission: ExerciseSubmission = {
-    id: `sub-${Date.now().toString()}`,
-    userId,
-    exerciseId,
-    repositoryUrl,
-    status: "pending",
-    submittedAt: new Date(),
-    results: null,
-  };
+  const response = await fetch("/api/exercises/submit", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      userId,
+      exerciseId,
+      repositoryUrl,
+    }),
+  });
 
-  // TODO: データベースに提出を保存
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "リポジトリの提出に失敗しました");
+  }
 
-  return submission;
+  const data = await response.json();
+  return data.submission;
 }
 
 // テスト結果を取得する関数
 export async function getTestResults(
   submissionId: string
 ): Promise<TestResult | null> {
-  // 実際のプロジェクトではAPIやデータベースからデータを取得
-  // ここではダミーデータを返す
-  return {
-    id: `test-${submissionId}`,
-    submissionId: submissionId,
-    exerciseId: "ex-001",
-    userId: "user-123",
-    passed: true,
-    score: 8,
-    maxScore: 10,
-    details: [
-      {
-        testName: "Todoアイテムの追加",
-        passed: true,
-        message: "テスト成功",
-        expected: "期待値",
-        actual: "実際の値",
-      },
-      {
-        testName: "Todoアイテムの切り替え",
-        passed: true,
-        message: "テスト成功",
-      },
-      {
-        testName: "Todoアイテムの削除",
-        passed: false,
-        message: "テスト失敗: 削除後もアイテムが残っています",
-      },
-    ],
-    feedback: "良い実装です。Todoアイテムの削除機能を修正してください。",
-    completedAt: new Date(),
-  };
+  const response = await fetch(
+    `/api/exercises/results?submissionId=${submissionId}`
+  );
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const data = await response.json();
+  return data.result;
 }
