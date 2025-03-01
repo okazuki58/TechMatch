@@ -3,13 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "npm run build:test-runner && next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "prepare": "husky install",
     "migrate-quizzes": "ts-node --project tsconfig.json scripts/migrate-quizzes.ts",
-    "build:test-runner": "node scripts/build-test-runner.js"
+    "build:test-runner": "node scripts/build-test-runner.js",
+    "test-runners:clean": "docker rmi todo-app-test-runner -f || true"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"

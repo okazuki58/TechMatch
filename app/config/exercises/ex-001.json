@@ -2,6 +2,7 @@
   "id": "todo-app",
   "name": "Todoアプリケーション",
   "description": "シンプルなTodoリスト管理アプリを実装する演習",
+  "type": "todo-app",
   "dockerImage": "todo-app-test-runner",
   "resources": {
     "cpus": "0.5",
