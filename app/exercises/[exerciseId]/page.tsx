@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/app/lib/contexts/auth-context";
 import { getExerciseById, submitExercise } from "@/app/lib/exercises";
@@ -72,12 +72,9 @@ const CodeBlock = ({
   );
 };
 
-export default function ExerciseDetailPage({
-  params,
-}: {
-  params: { exerciseId: string };
-}) {
-  const { exerciseId } = params;
+export default function ExerciseDetailPage() {
+  const params = useParams();
+  const exerciseId = params.exerciseId as string;
   const { user } = useAuth();
   const router = useRouter();
   const [exercise, setExercise] = useState<Exercise | null>(null);
