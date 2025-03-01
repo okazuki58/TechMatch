@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# プログラミング学習・スキル評価プラットフォーム - 実装状況
 
-## Getting Started
+## 実装済み機能
 
-First, run the development server:
+### ユーザー認証・ダッシュボード
+- ユーザー登録・ログイン機能
+- 認証状態の管理（コンテキストAPI使用）
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### 演習機能
+- 演習一覧表示
+- 演習詳細表示（難易度、カテゴリ、タグ付け）
+- マークダウンによる演習説明とセットアップガイド
+- コードブロックのシンタックスハイライトとコピー機能
+- GitHubリポジトリURL提出機能
+- 提出結果の表示
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 実装予定機能
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### スキルテスト
+- スキル評価テストの提供
+- テスト結果の分析と表示
+- スキルレベルの認定
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 求人情報
+- 求人リスト表示
+- 求人詳細情報
+- スキルに基づいた求人推薦
+- 応募機能
 
-## Learn More
+### 企業情報
+- 企業プロフィール
+- 企業が提供する演習や求人
+- 企業評価やレビュー
 
-To learn more about Next.js, take a look at the following resources:
+## 技術スタック
+- フロントエンド: Next.js (App Router), React
+- UI: TailwindCSS
+- マークダウンレンダリング: ReactMarkdown, remark-gfm
+- コードハイライト: react-syntax-highlighter
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## フロー図
