@@ -9,7 +9,7 @@
 ### 演習機能
 - 演習一覧表示
 - 演習詳細表示（難易度、カテゴリ、タグ付け）
-- マークダウンによる演習説明とセットアップガイド![Uploading mermaid-diagram-2025-03-01-152103.svg…]()
+- マークダウンによる演習説明とセットアップガイド
 
 - コードブロックのシンタックスハイライトとコピー機能
 - GitHubリポジトリURL提出機能
@@ -40,5 +40,5 @@
 - コードハイライト: react-syntax-highlighter
 
 ## フロー図
-![pako_eNpVkltLAkEUgP_KMs9F7z4ElaVlN6inZn3Y2vUC6YrtPoQKOtPFMigig8Bu0D2E7plJ_pjjzm7_onGawp2H4Zz5vnM4ByaHlkzdQAEUz2qZhDIfVNMKP0MY6BXQFpA3fkeV_v5BZTgHtA7kAcgF0Gd3-42tVwq_-nBXyLPaXa-RV0Zwbz7gHn1-7zxFe0t6OWuUodTOK0FeVQRKgbwDvQRa685Bt2RdUMwyilnrwG3](https://github.com/user-attachments/assets/db0f0535-21fe-4dab-af02-b0326f307252)
+<img src="https://github.com/user-attachments/assets/db0f0535-21fe-4dab-af02-b0326f307252" width="520px">
 
