@@ -15,7 +15,14 @@ declare module "next-auth" {
       name?: string | null;
       email?: string | null;
       image?: string | null;
+      role?: string;
     };
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    role?: string;
   }
 }
 
@@ -60,6 +67,8 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: user.name,
+          // nullではなくundefinedを使用
+          role: user.role || undefined,
         };
       },
     }),
@@ -71,9 +80,16 @@ export const authOptions: NextAuthOptions = {
     signIn: "/login",
   },
   callbacks: {
-    async session({ session, token }: { session: Session; token: JWT }) {
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role; // ユーザーからJWTにロールをコピー
+      }
+      return token;
+    },
+    async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.sub;
+        session.user.role = token.role; // JWTからセッションにロールをコピー
       }
       return session;
     },
