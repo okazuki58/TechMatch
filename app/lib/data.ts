@@ -1,11 +1,9 @@
 // app/lib/data.ts
 import {
-  User,
   Badge,
   QuizCategory,
   QuizResult,
   Quiz,
-  QuizQuestion,
 } from "./definitions";
 import { prisma } from "./db";
 
