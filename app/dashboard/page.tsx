@@ -28,7 +28,13 @@ export default function DashboardPage() {
   useEffect(() => {
     if (user) {
       // ユーザーのクイズ結果とバッジを取得
-      fetch("/api/user/stats")
+      fetch("/api/user/stats", {
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+        },
+      })
         .then((res) => res.json())
         .then((data) => {
           setQuizResults(data.quizResults || []);

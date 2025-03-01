@@ -6,17 +6,38 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
+    const body = await request.json();
 
-    if (!session || !session.user) {
+    // セッションチェック
+    if (!session?.user?.email) {
+      console.log("未認証ユーザー");
+      return NextResponse.json({
+        quizResult: {
+          id: `temp-${Date.now()}`,
+          quizId: body.quizId,
+          quizName: "クイズ",
+          score: body.score,
+          maxScore: body.maxScore,
+          completedAt: new Date(),
+        },
+        newBadge: null,
+      });
+    }
+
+    // ユーザーをメールアドレスで検索
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
+
+    if (!user) {
+      console.error(`ユーザーが見つかりません: ${session.user.email}`);
       return NextResponse.json(
-        { error: "認証されていません" },
-        { status: 401 }
+        { error: "ユーザーが見つかりません。再ログインしてください。" },
+        { status: 404 }
       );
     }
 
-    const userId = session.user.id;
-    const body = await request.json();
-    console.log("クイズ結果リクエスト:", body);
+    const userId = user.id;
 
     // 必須パラメーターチェック
     if (!body.quizId || body.score === undefined || !body.maxScore) {
@@ -42,31 +63,29 @@ export async function POST(request: NextRequest) {
 
     // 新規または更新
     if (!existingResult || existingResult.score < body.score) {
-      // 既存の結果がない、または新しいスコアが高い場合に保存
-      quizResult = await prisma.quizResult.upsert({
-        where: {
-          // 複合キーがない場合は、既存レコードのIDを使うか、一意の条件を指定
-          id: existingResult?.id || "new",
-        },
-        update: {
-          score: body.score,
-          completedAt: new Date(),
-        },
-        create: {
-          quiz: {
-            connect: { id: body.quizId },
+      if (existingResult) {
+        // 既存結果があれば更新
+        quizResult = await prisma.quizResult.update({
+          where: { id: existingResult.id },
+          data: {
+            score: body.score,
+            completedAt: new Date(),
           },
-          user: {
-            connect: { id: userId },
+          include: { quiz: true },
+        });
+      } else {
+        // 新規作成
+        quizResult = await prisma.quizResult.create({
+          data: {
+            quiz: { connect: { id: body.quizId } },
+            user: { connect: { id: userId } },
+            score: body.score,
+            maxScore: body.maxScore,
+            completedAt: new Date(),
           },
-          score: body.score,
-          maxScore: body.maxScore,
-          completedAt: new Date(),
-        },
-        include: {
-          quiz: true,
-        },
-      });
+          include: { quiz: true },
+        });
+      }
 
       // バッジの確認
       if (!existingResult && body.score >= body.maxScore * 0.8) {
@@ -84,7 +103,7 @@ export async function POST(request: NextRequest) {
                 connect: { id: userId },
               },
               quiz: {
-                connect: { id: quiz.badge.quizId },
+                connect: { id: quiz.id },
               },
               name: quiz.badge.name,
               description: quiz.badge.description,
@@ -114,6 +133,11 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("クイズ結果保存エラー:", error);
+    // エラーの詳細情報を追加
+    if (error instanceof Error) {
+      console.error("エラーメッセージ:", error.message);
+      console.error("エラースタック:", error.stack);
+    }
     return NextResponse.json(
       { error: "クイズ結果の保存に失敗しました" },
       { status: 500 }
