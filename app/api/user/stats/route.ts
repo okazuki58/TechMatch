@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { PrismaClient } from "@prisma/client";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { quizzes } from "@/app/lib/quizzes";
-
-const prisma = new PrismaClient();
+import { getUserStats } from "@/app/lib/data";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -14,26 +11,7 @@ export async function GET() {
   }
 
   try {
-    // ユーザーのクイズ結果を取得
-    const quizResultsFromDB = await prisma.quizResult.findMany({
-      where: { userId: session.user.id },
-      orderBy: { completedAt: "desc" },
-    });
-
-    // クイズ名を追加
-    const quizResults = quizResultsFromDB.map((result) => {
-      const quiz = quizzes.find((q) => q.id === result.quizId);
-      return {
-        ...result,
-        quizName: quiz ? quiz.name : "不明なテスト",
-      };
-    });
-
-    // ユーザーのバッジを取得
-    const badges = await prisma.badge.findMany({
-      where: { userId: session.user.id },
-    });
-
+    const { quizResults, badges } = await getUserStats(session.user.id);
     return NextResponse.json({ quizResults, badges });
   } catch (error) {
     console.error("ユーザーデータ取得エラー:", error);

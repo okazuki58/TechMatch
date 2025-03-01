@@ -2,14 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Badge, QuizResult, QuizState } from "@/app/lib/definitions";
+import { Badge, QuizResult, QuizState, Quiz } from "@/app/lib/definitions";
 import { useAuth } from "@/app/lib/contexts/auth-context";
 import QuizCard from "@/app/ui/quiz-card";
 import Header from "@/app/ui/header";
 import Navbar from "@/app/ui/navbar";
 import QuizResultScreen from "@/app/ui/quiz-result";
 import Link from "next/link";
-import { quizzes } from "@/app/lib/quizzes";
 import React from "react";
 
 export default function QuizPage() {
@@ -19,9 +18,8 @@ export default function QuizPage() {
   const [quizEnded, setQuizEnded] = useState(false);
   const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
   const [newBadge, setNewBadge] = useState<Badge | null>(null);
-
-  // テストデータの取得
-  const quiz = quizzes.find((q) => q.id === params.quizId);
+  const [quiz, setQuiz] = useState<Quiz | null>(null);
+  const [loading, setLoading] = useState(true);
 
   // すべてのuseStateとuseEffectをコンポーネントのトップレベルに配置
   const [quizState, setQuizState] = useState<QuizState>({
@@ -30,18 +28,32 @@ export default function QuizPage() {
     selectedOptionIndex: null,
     showAnswer: false,
     timeRemaining: 20,
-    questions: quiz?.questions || [],
+    questions: [],
   });
 
-  // quizが変更されたときに質問を更新
+  // クイズデータの取得
   useEffect(() => {
-    if (quiz) {
-      setQuizState((prev) => ({
-        ...prev,
-        questions: quiz.questions,
-      }));
+    async function fetchQuiz() {
+      try {
+        const response = await fetch(`/api/quizzes/${params.quizId}`);
+        if (!response.ok) {
+          throw new Error("クイズの取得に失敗しました");
+        }
+        const data = await response.json();
+        setQuiz(data);
+        setQuizState((prev) => ({
+          ...prev,
+          questions: data.questions || [],
+        }));
+      } catch (error) {
+        console.error("クイズの取得に失敗しました:", error);
+      } finally {
+        setLoading(false);
+      }
     }
-  }, [quiz]);
+
+    fetchQuiz();
+  }, [params.quizId]);
 
   useEffect(() => {
     if (!quiz) return;
@@ -63,6 +75,22 @@ export default function QuizPage() {
       }));
     }
   }, [quizState.timeRemaining, quizState.showAnswer, quiz]);
+
+  // ローディング中の表示
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <div className="container mx-auto px-4 py-8 max-w-3xl">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
+            <div className="h-64 bg-gray-200 rounded mb-4"></div>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   // テストが見つからない場合
   if (!quiz) {
