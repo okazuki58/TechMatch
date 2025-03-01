@@ -278,7 +278,8 @@ export default function QuizPage() {
           <>
             <Header
               score={quizState.score}
-              timeRemaining={quizState.timeRemaining}
+              currentQuestionIndex={quizState.currentQuestionIndex}
+              totalQuestions={quizState.questions.length}
               progress={progress}
               showProgress={true}
             />

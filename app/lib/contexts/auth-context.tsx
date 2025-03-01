@@ -31,11 +31,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<ExtendedUser | null>(null);
 
   useEffect(() => {
-    if (session?.user) {
-      setUser(session.user as ExtendedUser);
-    } else {
-      setUser(null);
+    async function fetchUserData() {
+      try {
+        if (session?.user) {
+          // 基本情報を設定
+          setUser(session.user as ExtendedUser);
+
+          // 追加データを取得
+          const response = await fetch("/api/user/stats");
+          if (response.ok) {
+            const { badges, quizResults } = await response.json();
+            // 取得したデータで更新
+            setUser((prev) => ({
+              ...prev,
+              badges,
+              quizResults,
+            }));
+          }
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("ユーザーデータの取得に失敗:", error);
+      }
     }
+
+    fetchUserData();
   }, [session]);
 
   const handleSignIn = async (provider?: string) => {

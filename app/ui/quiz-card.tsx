@@ -47,7 +47,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
         {question.category}
       </span>
 
-      <div className="h-28 overflow-y-auto mb-6">
+      <div className="h-14 overflow-y-auto mb-6">
         <h2 className="text-xl md:text-2xl font-medium">{question.question}</h2>
       </div>
 

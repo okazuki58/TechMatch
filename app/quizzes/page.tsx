@@ -45,6 +45,7 @@ export default function QuizzesPage() {
       : true;
     return matchesCategory && matchesSearch;
   });
+
   // ローディング中の表示
   if (loading) {
     return (
@@ -164,8 +165,20 @@ export default function QuizzesPage() {
                   </div>
                 </div>
 
-                <div className="px-6 pb-6 pt-2 border-t border-gray-100 mt-auto">
+                <div className="px-6 py-6 border-t border-gray-100 mt-auto">
                   <div className="flex items-center justify-between">
+                    <Link
+                      href={`/quizzes/${quiz.id}`}
+                      className={`px-4 py-2 rounded-lg text-center duration-300 ${
+                        hasCompleted
+                          ? "bg-blue-50 text-blue-700 hover:bg-blue-100"
+                          : "bg-blue-600 text-white hover:bg-blue-700"
+                      }`}
+                    >
+                      {hasCompleted ? "再挑戦する" : "挑戦する"}
+                    </Link>
+
+                    {/* 合格表示を追加 */}
                     {hasBadge && (
                       <div className="flex items-center">
                         <span className="bg-green-50 text-green-700 text-xs px-2 py-1 rounded flex items-center">
@@ -181,21 +194,10 @@ export default function QuizzesPage() {
                               clipRule="evenodd"
                             />
                           </svg>
-                          バッジ獲得済み
+                          合格
                         </span>
                       </div>
                     )}
-
-                    <Link
-                      href={`/quizzes/${quiz.id}`}
-                      className={`px-4 py-2 rounded-lg text-center ${
-                        hasCompleted
-                          ? "bg-blue-50 text-blue-700"
-                          : "bg-blue-600 text-white"
-                      }`}
-                    >
-                      {hasCompleted ? "再挑戦する" : "挑戦する"}
-                    </Link>
                   </div>
                 </div>
               </div>
