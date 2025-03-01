@@ -8,6 +8,7 @@ interface QuizCardProps {
   onSelectOption: (index: number) => void;
   onSubmitAnswer: () => void;
   onNextQuestion: () => void;
+  isLastQuestion?: boolean;
 }
 
 const QuizCard: React.FC<QuizCardProps> = ({
@@ -17,6 +18,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
   onSelectOption,
   onSubmitAnswer,
   onNextQuestion,
+  isLastQuestion,
 }) => {
   const getOptionClassName = (index: number) => {
     let className = "quiz-option mb-3 text-lg";
@@ -40,9 +42,9 @@ const QuizCard: React.FC<QuizCardProps> = ({
         {question.category}
       </span>
 
-      <h2 className="text-xl md:text-2xl font-medium mb-6">
-        {question.question}
-      </h2>
+      <div className="h-28 overflow-y-auto mb-6">
+        <h2 className="text-xl md:text-2xl font-medium">{question.question}</h2>
+      </div>
 
       <div className="mb-6">
         {question.options.map((option, index) => (
@@ -56,21 +58,23 @@ const QuizCard: React.FC<QuizCardProps> = ({
         ))}
       </div>
 
-      {showAnswer && (
-        <div
-          className={`p-4 mb-6 rounded-lg text-center font-medium ${
-            selectedOptionIndex === question.correctAnswerIndex
-              ? "bg-green-50 text-green-700"
-              : "bg-red-50 text-red-700"
-          }`}
-        >
-          {selectedOptionIndex === question.correctAnswerIndex
-            ? "正解！よくできました！"
-            : `不正解！正解は「${
-                question.options[question.correctAnswerIndex]
-              }」です。`}
-        </div>
-      )}
+      <div className="h-16 mb-6">
+        {showAnswer && (
+          <div
+            className={`p-4 rounded-lg text-center font-medium ${
+              selectedOptionIndex === question.correctAnswerIndex
+                ? "bg-green-50 text-green-700"
+                : "bg-red-50 text-red-700"
+            }`}
+          >
+            {selectedOptionIndex === question.correctAnswerIndex
+              ? "正解！よくできました！"
+              : `不正解！正解は「${
+                  question.options[question.correctAnswerIndex]
+                }」です。`}
+          </div>
+        )}
+      </div>
 
       <div className="flex justify-between">
         <button
@@ -84,7 +88,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
 
         {showAnswer ? (
           <button className="btn btn-primary" onClick={onNextQuestion}>
-            次の問題
+            {isLastQuestion ? "結果を表示" : "次の問題"}
           </button>
         ) : (
           <button

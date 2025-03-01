@@ -251,6 +251,10 @@ export default function QuizPage() {
               onSelectOption={handleSelectOption}
               onSubmitAnswer={handleSubmitAnswer}
               onNextQuestion={handleNextQuestion}
+              isLastQuestion={
+                quizState.currentQuestionIndex ===
+                quizState.questions.length - 1
+              }
             />
 
             {!user && (
