@@ -10,6 +10,7 @@ import Navbar from "@/app/ui/navbar";
 import QuizResultScreen from "@/app/ui/quiz-result";
 import Link from "next/link";
 import React from "react";
+import { log } from "console";
 
 export default function QuizPage() {
   const params = useParams();
@@ -156,6 +157,12 @@ export default function QuizPage() {
 
     if (user) {
       try {
+        console.log("結果を保存中...", {
+          quizId: quiz.id,
+          score: quizState.score,
+          maxScore,
+        });
+
         // APIを呼び出してテスト結果を保存
         const response = await fetch("/api/quizzes/results", {
           method: "POST",
@@ -170,13 +177,18 @@ export default function QuizPage() {
           }),
         });
 
+        const responseData = await response.json();
+
         if (!response.ok) {
-          throw new Error("テスト結果の保存に失敗しました");
+          console.error("保存失敗レスポンス:", responseData);
+          throw new Error(
+            responseData.error || "テスト結果の保存に失敗しました"
+          );
         }
 
-        const data = await response.json();
-        setQuizResult(data.quizResult);
-        setNewBadge(data.newBadge);
+        console.log("結果保存成功:", responseData);
+        setQuizResult(responseData.quizResult);
+        setNewBadge(responseData.newBadge);
       } catch (error) {
         console.error("テスト結果の保存中にエラーが発生しました:", error);
         // エラーが発生しても、ユーザーには結果を表示

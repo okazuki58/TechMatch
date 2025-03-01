@@ -1,34 +1,39 @@
-const { PrismaClient } = require("@prisma/client");
-const { hash } = require("bcrypt");
+import { PrismaClient } from "@prisma/client";
+import { quizData } from "./seedData/quizData";
+import { createUserData } from "./seedData/userData";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  // 管理者ユーザーを作成
-  const adminPassword = await hash("admin123", 10);
+  // ユーザーデータの作成
+  console.log("ユーザーデータを作成中...");
+  const userData = await createUserData();
 
-  await prisma.user.upsert({
-    where: { email: "admin@example.com" },
-    update: {
-      password: adminPassword,
-      role: "admin",
-    },
-    create: {
-      email: "admin@example.com",
-      name: "Administrator",
-      password: adminPassword,
-      role: "admin",
-    },
-  });
+  for (const user of userData) {
+    await prisma.user.upsert({
+      where: { email: user.email },
+      update: {},
+      create: user,
+    });
+  }
+  console.log(`${userData.length}件のユーザーデータを作成しました`);
 
-  console.log("管理者ユーザーが作成されました");
+  // クイズデータの作成
+  console.log("クイズデータを作成中...");
+  for (const quiz of quizData) {
+    await prisma.quiz.create({
+      data: quiz,
+    });
+  }
+  console.log(`${quizData.length}件のクイズデータを作成しました`);
 }
 
 main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
+  .then(async () => {
     await prisma.$disconnect();
+  })
+  .catch(async (e) => {
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
   });

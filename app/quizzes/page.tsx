@@ -45,7 +45,6 @@ export default function QuizzesPage() {
       : true;
     return matchesCategory && matchesSearch;
   });
-
   // ローディング中の表示
   if (loading) {
     return (
