@@ -10,7 +10,6 @@ import Navbar from "@/app/ui/navbar";
 import QuizResultScreen from "@/app/ui/quiz-result";
 import Link from "next/link";
 import React from "react";
-import { log } from "console";
 
 export default function QuizPage() {
   const params = useParams();
