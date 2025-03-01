@@ -29,7 +29,7 @@ export default function QuizzesPage() {
     <>
       <Navbar />
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <h1 className="text-3xl font-bold mb-8">クイズ一覧</h1>
+        <h1 className="text-3xl font-bold mb-8">テスト一覧</h1>
 
         {/* 検索とフィルタ */}
         <div className="mb-8 flex flex-col md:flex-row md:items-center gap-4">
@@ -56,7 +56,7 @@ export default function QuizzesPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="block w-full p-3 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500"
-              placeholder="クイズを検索..."
+              placeholder="テストを検索..."
             />
           </div>
 
@@ -88,23 +88,24 @@ export default function QuizzesPage() {
           </div>
         </div>
 
-        {/* クイズカード */}
+        {/* テストカード */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredQuizzes.map((quiz) => {
             // ユーザーがログインしている場合、バッジ獲得済みかチェック
-            const hasBadge = user?.badges.some(
-              (badge) => badge.quizId === quiz.id
-            );
+            const hasBadge =
+              user?.badges?.some((badge) => badge.quizId === quiz.id) || false;
 
-            // ユーザーがこのクイズを完了したことがあるかチェック
-            const hasCompleted = user?.quizResults.some(
-              (result) => result.quizId === quiz.id
-            );
+            // ユーザーがこのテストを完了したことがあるかチェック
+            const hasCompleted =
+              user?.quizResults?.some((result) => result.quizId === quiz.id) ||
+              false;
 
             // 最高スコアを計算
             const bestResult = user?.quizResults
-              .filter((result) => result.quizId === quiz.id)
-              .sort((a, b) => b.score - a.score)[0];
+              ? user.quizResults
+                  .filter((result) => result.quizId === quiz.id)
+                  .sort((a, b) => b.score - a.score)[0]
+              : null;
 
             const bestScore = bestResult
               ? Math.round((bestResult.score / bestResult.maxScore) * 100)
@@ -181,8 +182,8 @@ export default function QuizzesPage() {
           <div className="bg-white rounded-xl shadow-sm p-8 text-center">
             <p className="text-gray-500 mb-4">
               {searchTerm
-                ? `"${searchTerm}" に一致するクイズが見つかりませんでした。`
-                : "選択したカテゴリのクイズはありません。"}
+                ? `"${searchTerm}" に一致するテストが見つかりませんでした。`
+                : "選択したカテゴリのテストはありません。"}
             </p>
             <button
               onClick={() => {

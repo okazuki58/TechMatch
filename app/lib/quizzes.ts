@@ -5,7 +5,7 @@ import { quizQuestions as gitTeamQuestions } from "./questions/git-team";
 export const quizzes: Quiz[] = [
   {
     id: "quiz-001",
-    name: "Web概論クイズ",
+    name: "Web概論テスト",
     description:
       "Webの基本的な仕組みやプロトコル、URLの構造などに関する問題です。",
     category: "Web開発",
@@ -13,13 +13,13 @@ export const quizzes: Quiz[] = [
     questions: webBasicsQuestions,
     badge: {
       name: "Web基礎マスター",
-      description: "Web概論クイズで80%以上の正解率を達成",
+      description: "Web概論テストで80%以上の正解率を達成",
       imageUrl: "/badges/web-basic-badge.svg",
     },
   },
   {
     id: "quiz-002",
-    name: "Gitとチーム開発クイズ",
+    name: "Gitとチーム開発テスト",
     description:
       "バージョン管理システムとチーム開発の基礎知識に関する問題です。",
     category: "開発プロセス",
@@ -27,7 +27,7 @@ export const quizzes: Quiz[] = [
     questions: gitTeamQuestions,
     badge: {
       name: "チーム開発マスター",
-      description: "Gitとチーム開発クイズで全問正解",
+      description: "Gitとチーム開発テストで全問正解",
       imageUrl: "/badges/git-team-badge.svg",
     },
   },

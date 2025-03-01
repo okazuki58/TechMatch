@@ -5,10 +5,12 @@ import { useAuth } from "@/app/lib/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import Navbar from "@/app/ui/navbar";
 import Badge from "@/app/ui/badge";
-import { quizzes } from "@/app/lib/data";
+import { quizzes } from "@/app/lib/quizzes";
+import Image from "next/image";
 
 export default function BadgesPage() {
-  const { user, isLoading } = useAuth();
+  const { user, status } = useAuth();
+  const isLoading = status === "loading";
   const router = useRouter();
 
   // ユーザーがログインしていない場合はログインページにリダイレクト
@@ -38,12 +40,9 @@ export default function BadgesPage() {
     );
   }
 
-  // ユーザーが獲得したバッジのIDリスト
-  const userBadgeIds = user.badges.map((badge) => badge.quizId);
-
   // 全てのバッジ（獲得済みと未獲得）を表示するためのデータ準備
   const allBadges = quizzes.map((quiz) => {
-    const userBadge = user.badges.find((badge) => badge.quizId === quiz.id);
+    const userBadge = user?.badges?.find((badge) => badge.quizId === quiz.id);
     return {
       id: quiz.id,
       name: quiz.badge.name,
@@ -65,13 +64,13 @@ export default function BadgesPage() {
           <div className="flex items-center mb-6">
             <h2 className="text-2xl font-bold">獲得済みバッジ</h2>
             <span className="ml-3 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-              {user.badges.length}/{allBadges.length}
+              {user?.badges?.length}/{allBadges.length}
             </span>
           </div>
 
-          {user.badges.length > 0 ? (
+          {user?.badges?.length && user?.badges?.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-              {user.badges.map((badge) => (
+              {user?.badges?.map((badge) => (
                 <div key={badge.id} className="flex justify-center">
                   <Badge badge={badge} size="lg" showDetails={true} />
                 </div>
@@ -80,13 +79,13 @@ export default function BadgesPage() {
           ) : (
             <div className="bg-white rounded-xl shadow-sm p-8 text-center">
               <p className="text-gray-500 mb-4">
-                まだバッジを獲得していません。クイズに挑戦しましょう！
+                まだバッジを獲得していません。テストに挑戦しましょう！
               </p>
               <button
                 onClick={() => router.push("/quizzes")}
                 className="btn btn-primary"
               >
-                クイズに挑戦する
+                テストに挑戦する
               </button>
             </div>
           )}
@@ -105,9 +104,11 @@ export default function BadgesPage() {
                   >
                     <div className="relative w-16 h-16 mb-2 grayscale">
                       <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                        <img
-                          src={badge.imageUrl || "/badges/default-badge.svg"}
+                        <Image
+                          src={badge.imageUrl}
                           alt={badge.name}
+                          width={100}
+                          height={100}
                           className="w-full h-full object-cover"
                         />
                         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -151,7 +152,7 @@ export default function BadgesPage() {
             バッジについて
           </h3>
           <p className="text-blue-700">
-            バッジはクイズでの成績や特定の条件を達成することで獲得できます。
+            バッジはテストでの成績や特定の条件を達成することで獲得できます。
             コレクションを完成させて、あなたの知識をアピールしましょう！
           </p>
         </div>

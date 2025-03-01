@@ -3,18 +3,35 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useAuth } from "@/app/lib/contexts/auth-context";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 const Navbar: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = () => {
-    logout();
+    signOut();
     router.push("/");
+  };
+
+  // ナビゲーションリンクのスタイルを決定する関数
+  const getLinkClassName = (path: string) => {
+    const baseClasses =
+      "inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium";
+    return pathname === path
+      ? `${baseClasses} border-blue-500 text-blue-700`
+      : `${baseClasses} border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300`;
+  };
+
+  // モバイル用のリンクスタイルを決定する関数
+  const getMobileLinkClassName = (path: string) => {
+    const baseClasses = "block pl-3 pr-4 py-2 border-l-4 text-base font-medium";
+    return pathname === path
+      ? `${baseClasses} border-blue-500 text-blue-700 bg-blue-50`
+      : `${baseClasses} border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800`;
   };
 
   return (
@@ -23,26 +40,42 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between h-16">
           <div className="flex">
             <Link href="/" className="flex-shrink-0 flex items-center">
-              <span className="text-xl font-bold text-blue-700">
-                クイズマスター
-              </span>
+              <span className="text-xl font-bold text-blue-700">DevExam</span>
             </Link>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               <Link
                 href="/"
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                className={getLinkClassName("/")}
               >
                 ホーム
               </Link>
               <Link
                 href="/quizzes"
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                className={getLinkClassName("/quizzes")}
               >
-                クイズ一覧
+                スキルテスト
+              </Link>
+              <Link
+                href="/exercises"
+                className={getLinkClassName("/exercises")}
+              >
+                演習問題
+              </Link>
+              <Link
+                href="/jobs"
+                className={getLinkClassName("/jobs")}
+              >
+                求人情報
+              </Link>
+              <Link
+                href="/companies"
+                className={getLinkClassName("/companies")}
+              >
+                企業一覧
               </Link>
               <Link
                 href="/leaderboard"
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                className={getLinkClassName("/leaderboard")}
               >
                 ランキング
               </Link>
@@ -53,15 +86,17 @@ const Navbar: React.FC = () => {
               <div className="relative">
                 <button
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
                     <span className="text-blue-700 font-medium">
-                      {user.username.charAt(0).toUpperCase()}
+                      {user.name?.charAt(0).toUpperCase() ||
+                        user.email?.charAt(0).toUpperCase() ||
+                        "U"}
                     </span>
                   </div>
                   <span className="ml-2 text-gray-700 flex items-center">
-                    {user.username}
+                    {user.name || user.email || "ユーザー"}
                   </span>
                 </button>
 
@@ -159,19 +194,31 @@ const Navbar: React.FC = () => {
         <div className="pt-2 pb-3 space-y-1">
           <Link
             href="/"
-            className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800"
+            className={getMobileLinkClassName("/")}
           >
             ホーム
           </Link>
           <Link
             href="/quizzes"
-            className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800"
+            className={getMobileLinkClassName("/quizzes")}
           >
-            クイズ一覧
+            スキルテスト
+          </Link>
+          <Link
+            href="/jobs"
+            className={getMobileLinkClassName("/jobs")}
+          >
+            求人情報
+          </Link>
+          <Link
+            href="/companies"
+            className={getMobileLinkClassName("/companies")}
+          >
+            企業一覧
           </Link>
           <Link
             href="/leaderboard"
-            className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800"
+            className={getMobileLinkClassName("/leaderboard")}
           >
             ランキング
           </Link>
@@ -183,13 +230,15 @@ const Navbar: React.FC = () => {
               <div className="flex-shrink-0">
                 <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
                   <span className="text-blue-700 font-medium">
-                    {user.username.charAt(0).toUpperCase()}
+                    {user.name?.charAt(0).toUpperCase() ||
+                      user.email?.charAt(0).toUpperCase() ||
+                      "U"}
                   </span>
                 </div>
               </div>
               <div className="ml-3">
                 <div className="text-base font-medium text-gray-800">
-                  {user.username}
+                  {user.name || user.email || "ユーザー"}
                 </div>
                 <div className="text-sm font-medium text-gray-500">
                   {user.email}

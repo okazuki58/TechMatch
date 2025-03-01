@@ -1,7 +1,5 @@
 // app/lib/data.ts
 import {
-  QuizQuestion,
-  Quiz,
   User,
   Badge,
   QuizCategory,
@@ -9,8 +7,7 @@ import {
 } from "./definitions";
 import { quizzes } from "./quizzes";
 
-
-// クイズカテゴリ
+// テストカテゴリ
 export const quizCategories: QuizCategory[] = [
   {
     id: "cat-001",
@@ -39,7 +36,7 @@ export const mockUsers: User[] = [
       {
         id: "badge-001",
         name: "Web基礎マスター", // 更新: 新しいバッジ名
-        description: "Web概論クイズで80%以上の正解率を達成", // 更新: 新しい説明
+        description: "Web概論テストで80%以上の正解率を達成", // 更新: 新しい説明
         imageUrl: "/badges/web-basic-badge.svg", // 更新: 新しいバッジ画像
         quizId: "quiz-001",
         achievedAt: new Date("2025-02-25"),
@@ -49,7 +46,7 @@ export const mockUsers: User[] = [
       {
         id: "result-001",
         quizId: "quiz-001",
-        quizName: "Web概論クイズ", // 更新: 新しいクイズ名
+        quizName: "Web概論テスト", // 更新: 新しいテスト名
         score: 400,
         maxScore: 500,
         completedAt: new Date("2025-02-25"),
@@ -60,7 +57,7 @@ export const mockUsers: User[] = [
   },
 ];
 
-// オプション: 2つ目のクイズの結果も追加
+// オプション: 2つ目のテストの結果も追加
 export const mockUsersWithMultipleResults: User[] = [
   {
     id: "user-002",
@@ -70,7 +67,7 @@ export const mockUsersWithMultipleResults: User[] = [
       {
         id: "badge-001",
         name: "Web基礎マスター",
-        description: "Web概論クイズで80%以上の正解率を達成",
+        description: "Web概論テストで80%以上の正解率を達成",
         imageUrl: "/badges/web-basic-badge.svg",
         quizId: "quiz-001",
         achievedAt: new Date("2025-02-20"),
@@ -78,7 +75,7 @@ export const mockUsersWithMultipleResults: User[] = [
       {
         id: "badge-002",
         name: "チーム開発マスター",
-        description: "Gitとチーム開発クイズで全問正解",
+        description: "Gitとチーム開発テストで全問正解",
         imageUrl: "/badges/git-team-badge.svg",
         quizId: "quiz-002",
         achievedAt: new Date("2025-02-22"),
@@ -88,7 +85,7 @@ export const mockUsersWithMultipleResults: User[] = [
       {
         id: "result-001",
         quizId: "quiz-001",
-        quizName: "Web概論クイズ",
+        quizName: "Web概論テスト",
         score: 450,
         maxScore: 500,
         completedAt: new Date("2025-02-20"),
@@ -96,7 +93,7 @@ export const mockUsersWithMultipleResults: User[] = [
       {
         id: "result-002",
         quizId: "quiz-002",
-        quizName: "Gitとチーム開発クイズ",
+        quizName: "Gitとチーム開発テスト",
         score: 500,
         maxScore: 500,
         completedAt: new Date("2025-02-22"),
@@ -112,15 +109,20 @@ export let currentUser: User | null = mockUsers[0];
 
 // モック関数: ユーザーログイン
 export const loginUser = (email: string, password: string): User | null => {
-  // 実際はパスワード認証などが入る
+  // モックデータでもパスワード検証を行う
   const user = mockUsers.find((u) => u.email === email);
-  if (user) {
+
+  // 簡易的なパスワード検証（実際の実装ではハッシュ化と安全な比較が必要）
+  if (user && password.length > 0) {
+    // デモ用に単純な検証
     currentUser = {
       ...user,
       lastLogin: new Date(),
     };
+    return currentUser;
   }
-  return currentUser;
+
+  return null; // 認証失敗
 };
 
 // モック関数: ユーザーログアウト
@@ -128,7 +130,7 @@ export const logoutUser = (): void => {
   currentUser = null;
 };
 
-// モック関数: クイズ結果の保存とバッジ獲得処理
+// モック関数: テスト結果の保存とバッジ獲得処理
 export const saveQuizResult = (
   quizId: string,
   score: number,
@@ -140,7 +142,7 @@ export const saveQuizResult = (
 
   const quiz = quizzes.find((q) => q.id === quizId);
   if (!quiz) {
-    throw new Error("クイズが見つかりません");
+    throw new Error("テストが見つかりません");
   }
 
   // 結果を作成
@@ -163,7 +165,7 @@ export const saveQuizResult = (
   // すでにバッジを持っているか確認
   const hasBadge = currentUser.badges.some((b) => b.quizId === quizId);
 
-  // バッジ獲得条件: クイズによって異なる
+  // バッジ獲得条件: テストによって異なる
   let badgeEarned = false;
 
   if (quizId === "quiz-001" && scorePercentage >= 80) {

@@ -55,7 +55,7 @@ export default function QuizPage() {
   return (
     <div className="app-container max-w-2xl mx-auto p-5">
       <header className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-blue-700">クイズマスター</h1>
+        <h1 className="text-2xl font-bold text-blue-700">DevExam</h1>
         <div className="score-display text-lg">スコア: {score} 点</div>
       </header>
 

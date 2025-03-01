@@ -1,58 +1,51 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { QuizState } from "@/app/lib/definitions";
-import { saveQuizResult } from "@/app/lib/data";
+import { useParams, useRouter } from "next/navigation";
+import { Badge, QuizResult, QuizState } from "@/app/lib/definitions";
 import { useAuth } from "@/app/lib/contexts/auth-context";
 import QuizCard from "@/app/ui/quiz-card";
-import ProgressBar from "@/app/ui/progress-bar";
-import Timer from "@/app/ui/timer";
 import Header from "@/app/ui/header";
 import Navbar from "@/app/ui/navbar";
 import QuizResultScreen from "@/app/ui/quiz-result";
 import Link from "next/link";
 import { quizzes } from "@/app/lib/quizzes";
+import React from "react";
 
-export default function QuizPage({ params }: { params: { quizId: string } }) {
-  const { quizId } = params;
+export default function QuizPage() {
+  const params = useParams();
   const { user } = useAuth();
   const router = useRouter();
   const [quizEnded, setQuizEnded] = useState(false);
-  const [quizResult, setQuizResult] = useState<any>(null);
-  const [newBadge, setNewBadge] = useState<any>(null);
+  const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
+  const [newBadge, setNewBadge] = useState<Badge | null>(null);
 
-  // クイズデータの取得
-  const quiz = quizzes.find((q) => q.id === quizId);
+  // テストデータの取得
+  const quiz = quizzes.find((q) => q.id === params.quizId);
 
-  // クイズが見つからない場合
-  if (!quiz) {
-    return (
-      <>
-        <Navbar />
-        <div className="container mx-auto px-4 py-8 max-w-3xl text-center">
-          <h1 className="text-3xl font-bold mb-6">クイズが見つかりません</h1>
-          <p className="mb-6">
-            指定されたクイズIDが存在しないか、削除された可能性があります。
-          </p>
-          <Link href="/quizzes" className="btn btn-primary">
-            クイズ一覧に戻る
-          </Link>
-        </div>
-      </>
-    );
-  }
-
+  // すべてのuseStateとuseEffectをコンポーネントのトップレベルに配置
   const [quizState, setQuizState] = useState<QuizState>({
     currentQuestionIndex: 0,
     score: 0,
     selectedOptionIndex: null,
     showAnswer: false,
     timeRemaining: 20,
-    questions: quiz.questions,
+    questions: quiz?.questions || [],
   });
 
+  // quizが変更されたときに質問を更新
   useEffect(() => {
+    if (quiz) {
+      setQuizState((prev) => ({
+        ...prev,
+        questions: quiz.questions,
+      }));
+    }
+  }, [quiz]);
+
+  useEffect(() => {
+    if (!quiz) return;
+
     if (quizState.timeRemaining > 0 && !quizState.showAnswer) {
       const timer = setTimeout(() => {
         setQuizState((prev) => ({
@@ -69,7 +62,25 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
         showAnswer: true,
       }));
     }
-  }, [quizState.timeRemaining, quizState.showAnswer]);
+  }, [quizState.timeRemaining, quizState.showAnswer, quiz]);
+
+  // テストが見つからない場合
+  if (!quiz) {
+    return (
+      <>
+        <Navbar />
+        <div className="container mx-auto px-4 py-8 max-w-3xl text-center">
+          <h1 className="text-3xl font-bold mb-6">テストが見つかりません</h1>
+          <p className="mb-6">
+            指定されたテストIDが存在しないか、削除された可能性があります。
+          </p>
+          <Link href="/quizzes" className="btn btn-primary">
+            テスト一覧に戻る
+          </Link>
+        </div>
+      </>
+    );
+  }
 
   const handleSelectOption = (index: number) => {
     if (quizState.showAnswer) return; // 解答表示後は選択できない
@@ -110,39 +121,67 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
     }
   };
 
-  const finishQuiz = () => {
-    // クイズ終了処理
+  const finishQuiz = async () => {
+    // テスト終了処理
     const maxScore = quizState.questions.length * 100;
+    const completedAt = new Date();
 
     if (user) {
       try {
-        // 結果を保存し、バッジ獲得をチェック
-        const result = saveQuizResult(quiz.id, quizState.score, maxScore);
-        setQuizResult(result.quizResult);
-        setNewBadge(result.newBadge);
+        // APIを呼び出してテスト結果を保存
+        const response = await fetch("/api/quizzes/results", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            quizId: quiz.id,
+            score: quizState.score,
+            maxScore,
+            completedAt,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("テスト結果の保存に失敗しました");
+        }
+
+        const data = await response.json();
+        setQuizResult(data.quizResult);
+        setNewBadge(data.newBadge);
       } catch (error) {
-        console.error("クイズ結果の保存中にエラーが発生しました:", error);
+        console.error("テスト結果の保存中にエラーが発生しました:", error);
+        // エラーが発生しても、ユーザーには結果を表示
+        setQuizResult({
+          id: `temp-${Date.now()}`,
+          quizId: quiz.id,
+          quizName: quiz.name,
+          score: quizState.score,
+          maxScore,
+          completedAt,
+        });
       }
     } else {
       // 未ログインユーザーの場合は結果だけ表示
       setQuizResult({
+        id: `temp-${Date.now()}`,
         quizId: quiz.id,
         quizName: quiz.name,
         score: quizState.score,
-        maxScore: maxScore,
-        completedAt: new Date(),
+        maxScore,
+        completedAt,
       });
     }
 
     setQuizEnded(true);
   };
 
-  const handleContinueAfterResult = () => {
+  const handleContinueAfterResult = async () => {
     if (user) {
-      // ログイン済みユーザーはダッシュボードへ
+      // セッションを更新してからリダイレクト
+      await fetch("/api/auth/session?update=true");
       router.push("/dashboard");
     } else {
-      // 未ログインユーザーはクイズ選択ページへ
       router.push("/quizzes");
     }
   };
@@ -175,7 +214,7 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
                   d="M15 19l-7-7 7-7"
                 />
               </svg>
-              クイズ一覧に戻る
+              テスト一覧に戻る
             </Link>
             <h1 className="text-2xl font-bold mt-3">{quiz.name}</h1>
             <div className="flex items-center mt-1 text-sm text-gray-500">
@@ -218,7 +257,7 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
               <div className="mt-6 bg-blue-50 p-4 rounded-lg">
                 <p className="text-blue-700 text-sm">
                   <strong>ログインするとバッジが獲得できます！</strong>{" "}
-                  クイズの進捗や結果を保存して、友達とシェアしましょう。
+                  テストの進捗や結果を保存して、友達とシェアしましょう。
                 </p>
                 <div className="mt-2 flex space-x-3">
                   <button

@@ -45,7 +45,11 @@ const Badge: React.FC<BadgeProps> = ({
           <h3 className="font-medium text-blue-700">{badge.name}</h3>
           <p className="text-xs text-gray-600 mt-1">{badge.description}</p>
           <p className="text-xs text-gray-500 mt-1">
-            獲得日: {badge.achievedAt.toLocaleDateString()}
+            獲得日:{" "}
+            {badge.achievedAt &&
+              (typeof badge.achievedAt === "string"
+                ? new Date(badge.achievedAt).toLocaleDateString()
+                : badge.achievedAt.toLocaleDateString())}
           </p>
         </div>
       )}
@@ -56,4 +60,3 @@ const Badge: React.FC<BadgeProps> = ({
 export default Badge;
 
 // app/ui/badge-collection.tsx
-
