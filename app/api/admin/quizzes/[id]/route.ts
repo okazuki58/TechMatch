@@ -62,17 +62,6 @@ export async function PUT(
       );
     }
 
-    // クイズを更新
-    const updatedQuiz = await prisma.quiz.update({
-      where: { id: params.id },
-      data: {
-        name: quiz.name,
-        description: quiz.description,
-        category: quiz.category,
-        difficulty: quiz.difficulty,
-      },
-    });
-
     // バッジを更新
     if (badge) {
       await prisma.quizBadge.update({

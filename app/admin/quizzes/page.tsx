@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Quiz } from "@prisma/client";
+import { Question, Quiz } from "@prisma/client";
 
 interface QuizWithCount extends Quiz {
   _count?: { questions: number };
-  questions?: any[];
+  questions?: Question[];
 }
 
 export default function AdminQuizzesPage() {
