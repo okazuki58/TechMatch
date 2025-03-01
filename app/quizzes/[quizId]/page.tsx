@@ -27,7 +27,7 @@ export default function QuizPage() {
     score: 0,
     selectedOptionIndex: null,
     showAnswer: false,
-    timeRemaining: 20,
+    timeRemaining: 45,
     questions: [],
   });
 
