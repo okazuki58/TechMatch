@@ -35,6 +35,12 @@ export default async function AdminLayout({
             クイズ管理
           </Link>
           <Link
+            href="/admin/exercises"
+            className="block py-2 px-4 rounded hover:bg-gray-700"
+          >
+            演習管理
+          </Link>
+          <Link
             href="/admin/users"
             className="block py-2 px-4 rounded hover:bg-gray-700"
           >
