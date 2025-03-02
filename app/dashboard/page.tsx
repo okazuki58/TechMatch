@@ -7,7 +7,7 @@ import Navbar from "@/app/ui/navbar";
 import QuizResultHistory from "@/app/ui/quiz-result-history";
 import BadgeCollection from "@/app/ui/badge-collection";
 import Link from "next/link";
-import { Badge, QuizResult } from "@/app/lib/definitions";
+import { Badge, QuizResult, ExerciseSubmission } from "@/app/lib/definitions";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -15,6 +15,9 @@ export default function DashboardPage() {
   const isLoading = status === "loading";
   const [quizResults, setQuizResults] = useState<QuizResult[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
+  const [exerciseSubmissions, setExerciseSubmissions] = useState<
+    ExerciseSubmission[]
+  >([]);
   const [isDataLoading, setIsDataLoading] = useState(true);
 
   // ユーザーがログインしていない場合はログインページにリダイレクト
@@ -39,6 +42,8 @@ export default function DashboardPage() {
         .then((data) => {
           setQuizResults(data.quizResults || []);
           setBadges(data.badges || []);
+          setExerciseSubmissions(data.exerciseSubmissions || []);
+          console.log(data.exerciseSubmissions);
           setIsDataLoading(false);
         })
         .catch((err) => {
@@ -67,6 +72,10 @@ export default function DashboardPage() {
   const badgeCount = badges.length;
   // クイズ結果の数を取得
   const quizResultCount = quizResults.length;
+  // 完了した演習の数を取得
+  const completedExercises = exerciseSubmissions.filter(
+    (submission) => submission.status === "completed"
+  ).length;
 
   return (
     <>
@@ -136,6 +145,10 @@ export default function DashboardPage() {
                 <span className="font-medium">{quizResultCount}</span>
               </div>
               <div className="flex justify-between">
+                <span className="text-gray-600">完了した演習:</span>
+                <span className="font-medium">{completedExercises}</span>
+              </div>
+              <div className="flex justify-between">
                 <span className="text-gray-600">獲得したバッジ:</span>
                 <span className="font-medium">{badgeCount}</span>
               </div>
@@ -173,6 +186,111 @@ export default function DashboardPage() {
             </Link>
           </div>
           <QuizResultHistory results={quizResults} />
+        </div>
+
+        {/* 演習結果セクション */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">演習提出履歴</h2>
+            <Link
+              href="/exercises"
+              className="text-blue-600 hover:text-blue-800"
+            >
+              演習を探す
+            </Link>
+          </div>
+
+          {exerciseSubmissions.length > 0 ? (
+            <div className="bg-white shadow rounded-lg overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      演習ID
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      提出日
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      ステータス
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      点数
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      リポジトリ
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {exerciseSubmissions.map((submission) => (
+                    <tr key={submission.id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {submission.exerciseId}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(submission.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                          ${
+                            submission.status === "completed"
+                              ? "bg-green-100 text-green-800"
+                              : submission.status === "pending"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {submission.status === "completed"
+                            ? "完了"
+                            : submission.status === "pending"
+                            ? "評価中"
+                            : "失敗"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {submission.results
+                          ? (() => {
+                              try {
+                                // resultsが文字列ならパース、オブジェクトならそのまま使用
+                                const result =
+                                  typeof submission.results === "string"
+                                    ? JSON.parse(submission.results)
+                                    : submission.results;
+                                return result.score ? `${result.score}点` : "-";
+                              } catch {
+                                return "-";
+                              }
+                            })()
+                          : "-"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600">
+                        <a
+                          href={submission.repositoryUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:underline"
+                        >
+                          リポジトリ
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="bg-white shadow rounded-lg p-6 text-center">
+              <p className="text-gray-500">まだ演習に取り組んでいません。</p>
+              <Link
+                href="/exercises"
+                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition inline-block"
+              >
+                演習を探す
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </>

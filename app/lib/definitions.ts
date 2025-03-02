@@ -167,9 +167,10 @@ export interface ExerciseSubmission {
   exerciseId: string;
   userId: string;
   repositoryUrl: string;
-  status: "pending" | "testing" | "completed" | "failed";
-  submittedAt: Date;
+  status: string; // "pending", "completed", "failed"
   results: TestResult | null;
+  createdAt: string | Date; // createdAtを追加
+  updatedAt: string | Date;
 }
 
 export interface TestResult {

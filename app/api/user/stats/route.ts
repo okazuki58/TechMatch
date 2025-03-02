@@ -47,6 +47,12 @@ export async function GET() {
 
     console.log(`取得したバッジ数: ${badges.length}`);
 
+    // 演習提出を取得する処理を追加
+    const exerciseSubmissions = await prisma.exerciseSubmission.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+    });
+
     // 結果をフォーマット
     const formattedResults = quizResults.map((result) => ({
       id: result.id,
@@ -60,6 +66,7 @@ export async function GET() {
     return NextResponse.json({
       quizResults: formattedResults,
       badges: badges,
+      exerciseSubmissions: exerciseSubmissions,
     });
   } catch (error) {
     console.error("統計取得エラー:", error);
