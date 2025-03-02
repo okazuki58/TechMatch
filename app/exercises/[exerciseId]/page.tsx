@@ -284,19 +284,6 @@ export default function ExerciseDetailPage() {
               </div>
             </div>
 
-            {exercise.gifUrl && (
-              <div className="mb-6">
-                <Image
-                  src={exercise.gifUrl}
-                  alt={`${exercise.title}の説明GIF`}
-                  width={600}
-                  height={400}
-                  className="rounded-lg"
-                  unoptimized={!exercise.gifUrl.startsWith("/")} // 外部URLの場合はNext.jsの最適化をスキップ
-                />
-              </div>
-            )}
-
             <p className="text-gray-600 mb-6">{exercise.description}</p>
 
             <div className="flex mb-6">
@@ -309,6 +296,27 @@ export default function ExerciseDetailPage() {
                 </span>
               ))}
             </div>
+
+            {exercise.gifUrl && (
+              <div className="my-8 flex justify-center">
+                <div className="relative max-w-full overflow-hidden rounded-lg shadow-lg border border-gray-200">
+                  <Image
+                    src={exercise.gifUrl}
+                    alt={`${exercise.title}の説明GIF`}
+                    width={800}
+                    height={450}
+                    className="w-full h-auto"
+                    style={{ maxHeight: "450px", objectFit: "contain" }}
+                    unoptimized={!exercise.gifUrl.startsWith("/")}
+                  />
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
+                    <p className="text-white text-sm font-medium">
+                      完成イメージのデモ
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="prose max-w-none">
               {renderMarkdown(exercise?.instructions)}
