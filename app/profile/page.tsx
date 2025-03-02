@@ -8,6 +8,7 @@ import QuizResultHistory from "@/app/ui/quiz-result-history";
 import Link from "next/link";
 import { Badge, QuizResult, ExerciseSubmission } from "@/app/lib/definitions";
 import Image from "next/image";
+import toast from "react-hot-toast";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -36,6 +37,7 @@ export default function ProfilePage() {
   }, [status, router]);
 
   // ユーザーがログインしたらデータをフェッチ
+  // ユーザーがログインしたらデータをフェッチ
   useEffect(() => {
     if (user) {
       // ユーザーのクイズ結果、バッジ、演習提出を取得
@@ -58,31 +60,53 @@ export default function ProfilePage() {
           setIsDataLoading(false);
         });
 
-      // プロフィールデータを取得（APIはまだ存在しないと仮定して、仮のデータをセット）
-      // 後でAPIができたら以下のコメントを外す
-      /*
+      // プロフィールデータを取得
       fetch("/api/user/profile", {
         cache: "no-store",
       })
         .then((res) => res.json())
         .then((data) => {
-          setProfileData(data);
+          setProfileData({
+            bio: data.bio || "",
+            motivation: data.motivation || "",
+            githubUrl: data.githubUrl || "",
+            twitterUrl: data.twitterUrl || "",
+            linkedinUrl: data.linkedinUrl || "",
+          });
         })
         .catch((err) => {
           console.error("プロフィール取得エラー:", err);
         });
-      */
     }
   }, [user]);
 
-  const handleProfileUpdate = () => {
-    // プロフィール更新処理（実装予定）
-    setIsEditing(false);
-    // fetch("/api/user/profile", {
-    //   method: "PUT",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify(profileData),
-    // })
+  const handleProfileUpdate = async () => {
+    try {
+      const response = await fetch("/api/user/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(profileData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "プロフィールの更新に失敗しました");
+      }
+
+      const updatedData = await response.json();
+      setProfileData(updatedData);
+      setIsEditing(false);
+
+      // toastで成功メッセージを表示
+      toast.success("プロフィールを更新しました");
+    } catch (error) {
+      console.error("プロフィール更新エラー:", error);
+
+      // toastでエラーメッセージを表示
+      toast.error(
+        (error as Error).message || "プロフィールの更新に失敗しました"
+      );
+    }
   };
 
   if (isLoading || isDataLoading) {
