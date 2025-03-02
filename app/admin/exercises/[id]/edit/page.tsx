@@ -1,17 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
-export default function EditExercisePage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function EditExercisePage() {
   const router = useRouter();
-  const { id } = params;
+  const params = useParams<{ id: string }>(); // useParamsを使用
+  const id = params.id;
 
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -89,6 +88,44 @@ export default function EditExercisePage({
       );
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const uploadGif = async () => {
+    if (!selectedFile) return;
+
+    setIsUploading(true);
+
+    const uploadFormData = new FormData();
+    uploadFormData.append("file", selectedFile);
+    uploadFormData.append("exerciseId", id);
+
+    try {
+      const response = await fetch("/api/upload/gif", {
+        method: "POST",
+        body: uploadFormData,
+      });
+
+      if (!response.ok) throw new Error("アップロードに失敗しました");
+
+      const data = await response.json();
+      setFormData({
+        ...formData,
+        gifUrl: data.fileUrl
+      });
+    } catch (error) {
+      console.error("Upload error:", error);
+      setError(
+        error instanceof Error ? error.message : "アップロードに失敗しました"
+      );
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -183,17 +220,49 @@ export default function EditExercisePage({
               htmlFor="gifUrl"
               className="block text-sm font-medium text-gray-700"
             >
-              GIF URL
+              GIF
             </label>
-            <input
-              type="url"
-              id="gifUrl"
-              name="gifUrl"
-              value={formData.gifUrl}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              placeholder="https://example.com/exercise.gif"
-            />
+            <div className="mt-1 flex items-center gap-4">
+              <input
+                type="text"
+                id="gifUrl"
+                name="gifUrl"
+                value={formData.gifUrl}
+                onChange={handleChange}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                placeholder="https://example.com/exercise.gif"
+              />
+              <div className="flex-shrink-0">
+                <label className="cursor-pointer bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50">
+                  <span>ファイル選択</span>
+                  <input
+                    type="file"
+                    className="sr-only"
+                    accept=".gif"
+                    onChange={handleFileChange}
+                  />
+                </label>
+              </div>
+              {selectedFile && (
+                <button
+                  type="button"
+                  onClick={uploadGif}
+                  disabled={isUploading}
+                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  {isUploading ? "アップロード中..." : "アップロード"}
+                </button>
+              )}
+            </div>
+            {formData.gifUrl && (
+              <div className="mt-2">
+                <img
+                  src={formData.gifUrl}
+                  alt="Exercise preview"
+                  className="h-36 object-contain"
+                />
+              </div>
+            )}
             <p className="mt-1 text-sm text-gray-500">
               演習の説明に使用するGIFのURL（オプション）
             </p>

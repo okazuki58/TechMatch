@@ -3,16 +3,13 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Exercise } from "@/app/lib/definitions";
 
-export default function ExerciseDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function ExerciseDetailPage() {
   const router = useRouter();
-  const { id } = params;
+  const params = useParams<{ id: string }>();
+  const id = params.id;
 
   const [exercise, setExercise] = useState<Exercise | null>(null);
   const [loading, setLoading] = useState(true);

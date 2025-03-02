@@ -18,7 +18,6 @@ export async function GET(
     }
 
     return NextResponse.json(exercise);
-    // eslint-disable-line @typescript-eslint/no-unused-vars
   } catch (error) {
     console.error("演習取得エラー:", error);
     return NextResponse.json(
