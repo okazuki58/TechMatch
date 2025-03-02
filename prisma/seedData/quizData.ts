@@ -7,7 +7,7 @@ export const quizData = [
     difficulty: "easy",
     badge: {
       create: {
-        name: "Web基礎マスター",
+        name: "Web基礎",
         description: "Webの基礎知識をマスターした証",
         imageUrl: "/badges/web-basics.svg",
       },
@@ -135,7 +135,7 @@ export const quizData = [
     difficulty: "medium",
     badge: {
       create: {
-        name: "Git達人バッジ",
+        name: "Git基礎",
         description: "Gitとチーム開発のスキルを証明するバッジ",
         imageUrl: "/badges/git-master.svg",
       },
@@ -265,7 +265,7 @@ export const quizData = [
     difficulty: "easy",
     badge: {
       create: {
-        name: "プログラミング基礎マスター",
+        name: "プログラミング基礎",
         description: "プログラミングの基礎知識をマスターした証",
         imageUrl: "/badges/programming-basics.svg",
       },
@@ -388,7 +388,7 @@ export const quizData = [
     difficulty: "medium",
     badge: {
       create: {
-        name: "Ruby基礎マスター",
+        name: "Ruby基礎",
         description: "Rubyの基礎知識をマスターした証",
         imageUrl: "/badges/ruby-basics.svg",
       },
@@ -516,7 +516,7 @@ export const quizData = [
     difficulty: "medium",
     badge: {
       create: {
-        name: "Rails基礎マスター",
+        name: "Rails基礎",
         description: "Ruby on Railsの基礎知識をマスターした証",
         imageUrl: "/badges/rails-basics.svg",
       },
@@ -643,7 +643,7 @@ export const quizData = [
     difficulty: "medium",
     badge: {
       create: {
-        name: "データベースマスター",
+        name: "データベース基礎",
         description: "データベースとSQLの基礎知識をマスターした証",
         imageUrl: "/badges/database-master.svg",
       },
@@ -763,7 +763,7 @@ export const quizData = [
     difficulty: "hard",
     badge: {
       create: {
-        name: "Rails上級バッジ",
+        name: "Rails上級",
         description: "Ruby on Railsの応用知識をマスターした証",
         imageUrl: "/badges/rails-advanced.svg",
       },

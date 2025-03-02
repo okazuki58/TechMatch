@@ -162,7 +162,7 @@ export default function DashboardPage() {
 
         {badgeCount > 0 && (
           <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center mb-8">
               <h2 className="text-xl font-semibold">獲得バッジ</h2>
               <Link
                 href="/badges"
