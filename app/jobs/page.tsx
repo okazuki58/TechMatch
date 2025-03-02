@@ -7,30 +7,10 @@ import { Job } from "@/app/lib/definitions";
 import Navbar from "@/app/ui/navbar";
 import JobCard from "@/app/ui/company/job-card";
 
-// 仮の企業データ取得関数
-const getCompanies = () => {
-  return [
-    {
-      id: "company-001",
-      name: "テックイノベーション株式会社",
-      logoUrl: "/company/company01.jpg",
-    },
-    {
-      id: "company-002",
-      name: "フューチャーソフト",
-      logoUrl: "/company/company02.jpg",
-    },
-    {
-      id: "company-003",
-      name: "グローバルウェブ",
-      logoUrl: "/company/company03.jpg",
-    },
-    {
-      id: "company-004",
-      name: "クリエイティブデザイン",
-      logoUrl: "/company/company04.jpg",
-    },
-  ];
+type SalaryRange = {
+  min: number;
+  max: number;
+  currency: string;
 };
 
 export default function JobsPage() {
@@ -83,57 +63,126 @@ export default function JobsPage() {
     (jobList: Job[]) => {
       let result = [...jobList];
 
-      // 経験レベルでフィルタリング
-      if (filters.experienceLevel) {
+      // 検索語句でフィルタリング
+      if (searchTerm.trim()) {
+        const searchLower = searchTerm.toLowerCase();
         result = result.filter(
-          (job) => job.experienceLevel === filters.experienceLevel
+          (job) =>
+            job.title.toLowerCase().includes(searchLower) ||
+            job.description.toLowerCase().includes(searchLower) ||
+            job.preferredSkills.some((skill) =>
+              skill.toLowerCase().includes(searchLower)
+            ) ||
+            job.requirements.some((req) =>
+              req.toLowerCase().includes(searchLower)
+            )
+        );
+      }
+
+      // 給与範囲でフィルタリング
+      if (salaryRange.min) {
+        result = result.filter(
+          (job) => (job.salary as SalaryRange).min >= salaryRange.min!
+        );
+      }
+      if (salaryRange.max) {
+        result = result.filter(
+          (job) => (job.salary as SalaryRange).max <= salaryRange.max!
         );
       }
 
       // 雇用形態でフィルタリング
-      if (filters.employmentType) {
-        result = result.filter(
-          (job) => job.employmentType === filters.employmentType
+      if (employmentTypes.length > 0) {
+        result = result.filter((job) =>
+          employmentTypes.includes(job.employmentType)
         );
       }
 
-      // 応募資格のある求人のみ表示
-      if (filters.showEligibleOnly && user?.quizResults) {
-        result = getEligibleJobs(user.quizResults);
+      // 経験レベルでフィルタリング
+      if (experienceLevels.length > 0) {
+        result = result.filter((job) =>
+          experienceLevels.includes(job.experienceLevel)
+        );
       }
 
       setFilteredJobs(result);
     },
-    [filters, user?.quizResults]
+    [searchTerm, salaryRange, employmentTypes, experienceLevels]
   );
 
+  // 会社情報を取得する関数
+  const fetchCompanies = async () => {
+    try {
+      const response = await fetch("/api/companies");
+      if (response.ok) {
+        const data = await response.json();
+        setCompanies(data);
+      }
+    } catch (error) {
+      console.error("会社情報の取得に失敗しました:", error);
+    }
+  };
+
   useEffect(() => {
-    // 全ての求人を取得
-    const allJobs = getJobs();
-    setJobs(allJobs);
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        // 全ての求人を取得
+        const allJobs = await getJobs();
+        setJobs(allJobs);
 
-    const allCompanies = getCompanies();
-    setCompanies(allCompanies);
+        // 会社情報を取得
+        await fetchCompanies();
 
-    // 初期表示用にフィルタリングを適用
-    applyFilters(allJobs);
-    setIsLoading(false);
+        // 初期表示用にフィルタリングを適用
+        applyFilters(allJobs);
+      } catch (error) {
+        console.error("求人情報の取得に失敗しました:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
   }, [applyFilters]);
 
   // フィルターの変更時に求人を再フィルタリング
   useEffect(() => {
     applyFilters(jobs);
-  }, [filters, jobs, applyFilters]);
+  }, [
+    searchTerm,
+    salaryRange,
+    employmentTypes,
+    experienceLevels,
+    jobs,
+    applyFilters,
+  ]);
 
-  // 以下の関数は現在使用されていないが、将来的に使用する可能性があるため残しておく
-  // const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-  //   const { name, value } = e.target;
-  //   setFilters((prev) => ({ ...prev, [name]: value }));
-  // };
+  // 応募資格のある求人のみを表示する関数
+  const fetchEligibleJobs = async () => {
+    if (!user?.quizResults) return;
 
-  // const handleEligibleToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   setFilters((prev) => ({ ...prev, showEligibleOnly: e.target.checked }));
-  // };
+    try {
+      setIsLoading(true);
+      const eligibleJobs = await getEligibleJobs();
+      setFilteredJobs(eligibleJobs);
+    } catch (error) {
+      console.error("応募資格のある求人の取得に失敗しました:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 応募資格のある求人のみ表示の切り替え
+  const handleEligibleToggle = (checked: boolean) => {
+    setFilters((prev) => ({ ...prev, showEligibleOnly: checked }));
+
+    if (checked) {
+      fetchEligibleJobs();
+    } else {
+      applyFilters(jobs);
+    }
+  };
 
   return (
     <>
@@ -250,6 +299,23 @@ export default function JobsPage() {
                   />
                 </div>
               </div>
+
+              {/* 応募資格のある求人のみ表示 */}
+              {user && (
+                <div className="mb-4">
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 text-blue-600"
+                      checked={filters.showEligibleOnly}
+                      onChange={(e) => handleEligibleToggle(e.target.checked)}
+                    />
+                    <span className="ml-2 text-sm text-gray-700">
+                      応募資格のある求人のみ表示
+                    </span>
+                  </label>
+                </div>
+              )}
 
               {/* リセットボタン */}
               <button

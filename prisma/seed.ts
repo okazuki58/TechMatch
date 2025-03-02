@@ -2,6 +2,8 @@ import { PrismaClient } from "@prisma/client";
 import { quizData } from "./seedData/quizData";
 import { createUserData } from "./seedData/userData";
 import { exerciseData } from "./seedData/exerciseData";
+import { jobData } from "./seedData/jobData";
+import { companyData } from "./seedData/companyData";
 
 const prisma = new PrismaClient();
 
@@ -14,6 +16,7 @@ async function main() {
     prisma.quizResult.deleteMany({}),
     prisma.exerciseSubmission.deleteMany({}),
     prisma.badge.deleteMany({}),
+    prisma.job.deleteMany({}),
 
     // 中間テーブル
     prisma.quizBadge.deleteMany({}),
@@ -22,6 +25,7 @@ async function main() {
     prisma.exercise.deleteMany({}),
     prisma.quiz.deleteMany({}),
     prisma.user.deleteMany({}),
+    prisma.company.deleteMany({}),
 
     // その他すべてのテーブル（存在する場合）
     prisma.$queryRaw`TRUNCATE TABLE "Session" CASCADE;`,
@@ -61,6 +65,24 @@ async function main() {
     });
   }
   console.log(`${exerciseData.length}件の演習データを作成しました`);
+
+  // 会社データを先に作成
+  console.log("会社データを作成中...");
+  for (const company of companyData) {
+    await prisma.company.create({
+      data: company,
+    });
+  }
+  console.log(`${companyData.length}件の会社データを作成しました`);
+
+  // 求人データの作成
+  console.log("求人データを作成中...");
+  for (const job of jobData) {
+    await prisma.job.create({
+      data: job,
+    });
+  }
+  console.log(`${jobData.length}件の求人データを作成しました`);
 
   // testユーザーの全クイズ結果を満点で登録
   console.log("テストユーザーのクイズ結果を作成中...");

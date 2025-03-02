@@ -5,54 +5,10 @@ import Link from "next/link";
 import Navbar from "@/app/ui/navbar";
 import CompanyCard from "@/app/ui/company/company-card";
 import { Company } from "@/app/lib/definitions";
-
-// 仮のデータ取得関数（実際のAPIが実装されるまでの仮実装）
-const fetchCompanies = async (): Promise<Company[]> => {
-  // 実際のAPIが実装されたらここを置き換える
-  return [
-    {
-      id: "company-001",
-      name: "テックイノベーション株式会社",
-      description:
-        "最先端のWeb技術を活用したサービス開発を行うテクノロジー企業です。チームの多様性を重視し、リモートワークを推進しています。",
-      industry: "Webサービス",
-      location: "東京",
-      employeeCount: 120,
-      websiteUrl: "https://example.com",
-      logoUrl: "/company/company01.jpg",
-      createdAt: new Date("2023-01-15"),
-      jobCount: 3,
-    },
-    {
-      id: "company-002",
-      name: "フューチャーソフト",
-      description:
-        "AI・機械学習を活用したソリューションを提供する企業です。未経験からのエンジニア育成に力を入れています。",
-      industry: "AI・ソフトウェア開発",
-      location: "大阪",
-      employeeCount: 85,
-      websiteUrl: "https://example.com",
-      logoUrl: "/company/company02.jpg",
-      createdAt: new Date("2022-08-10"),
-      jobCount: 2,
-    },
-    {
-      id: "company-003",
-      name: "クラウドシステムズ",
-      description:
-        "クラウドインフラの構築・運用を専門とするITサービス企業です。エンジニアのスキルアップを支援する充実した研修制度があります。",
-      industry: "クラウドサービス",
-      location: "福岡",
-      employeeCount: 50,
-      websiteUrl: "https://example.com",
-      logoUrl: "/company/company03.jpg",
-      createdAt: new Date("2023-03-22"),
-      jobCount: 1,
-    },
-  ];
-};
+import { useRouter } from "next/navigation";
 
 export default function CompaniesPage() {
+  const router = useRouter();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [industryFilter, setIndustryFilter] = useState("");
@@ -61,7 +17,12 @@ export default function CompaniesPage() {
   useEffect(() => {
     const loadCompanies = async () => {
       try {
-        const data = await fetchCompanies();
+        setIsLoading(true);
+        const response = await fetch("/api/companies");
+        if (!response.ok) {
+          throw new Error("Failed to fetch companies");
+        }
+        const data = await response.json();
         setCompanies(data);
       } catch (error) {
         console.error("企業データの取得に失敗しました:", error);
@@ -76,8 +37,8 @@ export default function CompaniesPage() {
   // 検索とフィルタリングを適用した企業リスト
   const filteredCompanies = companies.filter((company) => {
     const matchesSearch =
-      company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      company.description.toLowerCase().includes(searchTerm.toLowerCase());
+      company.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      company.description?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesIndustry =
       industryFilter === "" || company.industry === industryFilter;
@@ -87,7 +48,11 @@ export default function CompaniesPage() {
 
   // 業種の一覧を取得（重複なし）
   const industries = Array.from(
-    new Set(companies.map((company) => company.industry))
+    new Set(
+      companies
+        .filter((c) => c.industry)
+        .map((company) => company.industry as string)
+    )
   );
 
   return (
@@ -161,6 +126,7 @@ export default function CompaniesPage() {
               <CompanyCard
                 key={company.id}
                 company={company}
+                onClick={() => router.push(`/companies/${company.id}`)}
                 showJobCount={true}
               />
             ))}
