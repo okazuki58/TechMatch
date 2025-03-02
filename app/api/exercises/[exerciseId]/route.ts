@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
+import { getExerciseById } from "@/app/lib/exercises";
 
 // GET: 特定の演習を取得
 export async function GET(
@@ -7,9 +8,7 @@ export async function GET(
   { params }: { params: { exerciseId: string } }
 ) {
   try {
-    const exercise = await prisma.exercise.findUnique({
-      where: { id: params.exerciseId },
-    });
+    const exercise = await getExerciseById(params.exerciseId);
 
     if (!exercise) {
       return NextResponse.json(
@@ -19,8 +18,9 @@ export async function GET(
     }
 
     return NextResponse.json(exercise);
+    // eslint-disable-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("Failed to fetch exercise:", error);
+    console.error("演習取得エラー:", error);
     return NextResponse.json(
       { error: "演習の取得に失敗しました" },
       { status: 500 }

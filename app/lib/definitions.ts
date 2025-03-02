@@ -154,12 +154,12 @@ export interface Exercise {
   difficulty: string; // "beginner" | "intermediate" | "advanced" から変更
   category: string;
   tags: string[];
-  testDescription: string;
+  testDescription?: string | null;
   createdAt: Date;
   updatedAt: Date;
   instructions?: string;
   setupGuide?: string;
-  gifUrl?: string;
+  gifUrl?: string | null;
 }
 
 export interface ExerciseSubmission {

@@ -58,14 +58,16 @@ model VerificationToken {
 }
 
 model Exercise {
-  id          String    @id @default(cuid())
-  title       String
-  description String
-  difficulty  String    // "beginner", "intermediate", "advanced"
-  // submissions ExerciseSubmission[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  gifUrl      String?
+  id             String   @id
+  title          String
+  description    String
+  difficulty     String
+  category       String
+  tags           String[]
+  testDescription String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  gifUrl         String?
 }
 
 model ExerciseSubmission {
