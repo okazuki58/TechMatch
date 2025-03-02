@@ -46,7 +46,7 @@ async function runTests() {
     try {
       const inputExists = await page.$("#todo-input");
       const buttonExists = await page.$("#add-button");
-      const listExists = await page.$(".todo-list, #todo-list, ul");
+      const listExists = await page.$("#todo-list");
 
       if (inputExists && buttonExists && listExists) {
         result.details.push({
@@ -61,7 +61,7 @@ async function runTests() {
           testName: "UI要素の存在チェック",
           passed: false,
           message:
-            "必要なUI要素が見つかりません。#todo-input, #add-button, .todo-listが必要です",
+            "必要なUI要素が見つかりません。#todo-input, #add-button, #todo-listが必要です",
         });
       }
     } catch (error) {
@@ -84,7 +84,7 @@ async function runTests() {
       // タスクリストにアイテムが追加されたかチェック
       await page.waitForTimeout(500); // 処理完了を待つ
 
-      const todoItems = await page.$$(".todo-item, li");
+      const todoItems = await page.$$(".todo-item");
 
       if (todoItems.length > 0) {
         // タスクが追加されたかどうか内容をチェック
@@ -128,26 +128,22 @@ async function runTests() {
 
     // テスト3: タスク完了機能
     try {
-      // 完了ボタンまたはチェックボックスを探す
-      const completeButton = await page.$(
-        ".complete-button, input[type=checkbox], .todo-item button"
-      );
+      // タスクのテキスト部分を探す - 要件に合わせて修正
+      const todoText = await page.$(".todo-text");
 
-      if (completeButton) {
-        // 完了ボタンをクリック
-        await completeButton.click();
+      if (todoText) {
+        // テキスト部分をクリック
+        await todoText.click();
         await page.waitForTimeout(500);
 
-        // 完了状態になったかチェック (classまたはスタイルで判断)
-        const completedItem = await page.$(
-          '.completed, .done, [style*="text-decoration: line-through"]'
-        );
+        // 完了状態になったかチェック - 要件のクラス名に合わせる
+        const completedItem = await page.$(".completed");
 
         if (completedItem) {
           result.details.push({
             testName: "タスク完了機能",
             passed: true,
-            message: "タスクを完了状態に変更できます",
+            message: "タスクテキストをクリックして完了状態に変更できます",
           });
           result.score += 25;
         } else {
@@ -155,7 +151,8 @@ async function runTests() {
           result.details.push({
             testName: "タスク完了機能",
             passed: false,
-            message: "タスクの完了状態への変更が機能していません",
+            message:
+              "タスクテキストをクリックしても完了状態への変更が機能していません",
           });
         }
       } else {
@@ -163,7 +160,7 @@ async function runTests() {
         result.details.push({
           testName: "タスク完了機能",
           passed: false,
-          message: "完了ボタンまたはチェックボックスが見つかりません",
+          message: "タスクテキスト(.todo-text)が見つかりません",
         });
       }
     } catch (error) {
@@ -177,21 +174,19 @@ async function runTests() {
 
     // テスト4: タスク削除機能
     try {
-      // 削除ボタンを探す
-      const deleteButton = await page.$(
-        ".delete-button, .remove-button, .todo-item button:last-child"
-      );
+      // 削除ボタンを探す - 要件の通り.delete-btnに限定
+      const deleteButton = await page.$(".delete-btn");
 
       if (deleteButton) {
         // 削除前のタスク数を取得
-        const beforeCount = (await page.$$(".todo-item, li")).length;
+        const beforeCount = (await page.$$(".todo-item")).length;
 
         // 削除ボタンをクリック
         await deleteButton.click();
         await page.waitForTimeout(500);
 
         // 削除後のタスク数を取得
-        const afterCount = (await page.$$(".todo-item, li")).length;
+        const afterCount = (await page.$$(".todo-item")).length;
 
         if (afterCount < beforeCount) {
           result.details.push({
@@ -213,7 +208,7 @@ async function runTests() {
         result.details.push({
           testName: "タスク削除機能",
           passed: false,
-          message: "削除ボタンが見つかりません",
+          message: "削除ボタン(.delete-btn)が見つかりません",
         });
       }
     } catch (error) {
