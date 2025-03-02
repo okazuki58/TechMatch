@@ -14,6 +14,11 @@ model User {
   emailVerified DateTime?
   password      String?
   image         String?
+  bio           String?   @db.Text
+  motivation    String?   @db.Text
+  githubUrl     String?
+  twitterUrl    String?
+  linkedinUrl   String?
   accounts      Account[]
   sessions      Session[]
   badges        Badge[]
