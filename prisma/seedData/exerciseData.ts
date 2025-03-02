@@ -7,6 +7,6 @@ export const exerciseData = [
     difficulty: "beginner",
     category: "frontend",
     tags: ["HTML", "CSS", "JavaScript"],
-    gifUrl: "https://example.com/todo-app.gif", // オプションでgifUrl追加
+    gifUrl: "/exercises/ex-001.gif", // オプションでgifUrl追加
   },
 ];
