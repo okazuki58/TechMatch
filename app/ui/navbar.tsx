@@ -1,10 +1,11 @@
 // app/ui/navbar.tsx
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/app/lib/contexts/auth-context";
 import { useRouter, usePathname } from "next/navigation";
+import { useClickAway } from "react-use";
 
 const Navbar: React.FC = () => {
   const { user, signOut } = useAuth();
@@ -19,28 +20,15 @@ const Navbar: React.FC = () => {
     router.push("/");
   };
 
-  // クリックアウトサイド検出のためのハンドラー
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        isMenuOpen &&
-        menuRef.current &&
-        buttonRef.current &&
-        !menuRef.current.contains(event.target as Node) &&
-        !buttonRef.current.contains(event.target as Node)
-      ) {
-        setIsMenuOpen(false);
-      }
-    };
-
-    // イベントリスナーを追加
-    document.addEventListener("mousedown", handleClickOutside);
-
-    // クリーンアップ関数
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isMenuOpen]);
+  // メニューとボタン以外がクリックされたとき
+  useClickAway(menuRef, (event: Event) => {
+    // ボタンをクリックした場合は無視（ボタンクリックは別途処理）
+    if (buttonRef.current && buttonRef.current.contains(event.target as Node)) {
+      return;
+    }
+    // メニューを閉じる
+    setIsMenuOpen(false);
+  });
 
   // ナビゲーションリンクのスタイルを決定する関数
   const getLinkClassName = (path: string) => {
