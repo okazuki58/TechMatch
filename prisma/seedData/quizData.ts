@@ -1,5 +1,6 @@
 export const quizData = [
   {
+    id: "quiz-001",
     name: "Web概論クイズ",
     description: "Webの仕組みや関連技術についての基礎知識を問うクイズです",
     category: "Web開発",
@@ -127,6 +128,7 @@ export const quizData = [
     },
   },
   {
+    id: "quiz-002",
     name: "Gitとチーム開発クイズ",
     description: "Git操作とチーム開発の知識を問うクイズです",
     category: "Git",
@@ -256,6 +258,7 @@ export const quizData = [
     },
   },
   {
+    id: "quiz-003",
     name: "プログラミング基礎クイズ",
     description: "プログラミングの基本的な概念と知識を問うクイズです",
     category: "プログラミング",
@@ -378,6 +381,7 @@ export const quizData = [
     },
   },
   {
+    id: "quiz-004",
     name: "Ruby基礎クイズ",
     description: "Rubyの基本的な文法と機能を問うクイズです",
     category: "Ruby",
@@ -505,6 +509,7 @@ export const quizData = [
     },
   },
   {
+    id: "quiz-005",
     name: "Rails基礎クイズ",
     description: "Ruby on Railsの基本的な機能と使い方を問うクイズです",
     category: "Ruby on Rails",
@@ -631,6 +636,7 @@ export const quizData = [
     },
   },
   {
+    id: "quiz-006",
     name: "データベースとSQLクイズ",
     description: "データベースとSQLの基礎知識を問うクイズです",
     category: "データベース",
@@ -750,6 +756,7 @@ export const quizData = [
     },
   },
   {
+    id: "quiz-007",
     name: "Rails応用クイズ",
     description: "Ruby on Railsの応用的な知識とテクニックを問うクイズです",
     category: "Ruby on Rails",

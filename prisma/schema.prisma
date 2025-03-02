@@ -108,7 +108,7 @@ model Badge {
 }
 
 model Quiz {
-  id          String       @id @default(cuid())
+  id          String       @id
   name        String
   description String
   category    String

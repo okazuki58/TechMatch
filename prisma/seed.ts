@@ -23,6 +23,14 @@ async function main() {
 
   console.log("データベースをリセットしました");
 
+  // クイズデータの作成
+  console.log("クイズデータを作成中...");
+  for (const quiz of quizData) {
+    await prisma.quiz.create({
+      data: quiz,
+    });
+  }
+  console.log(`${quizData.length}件のクイズデータを作成しました`);
 
   // ユーザーデータの作成
   console.log("ユーザーデータを作成中...");
@@ -37,15 +45,6 @@ async function main() {
   }
   console.log(`${userData.length}件のユーザーデータを作成しました`);
 
-  // クイズデータの作成
-  console.log("クイズデータを作成中...");
-  for (const quiz of quizData) {
-    await prisma.quiz.create({
-      data: quiz,
-    });
-  }
-  console.log(`${quizData.length}件のクイズデータを作成しました`);
-
   // 演習データの作成
   console.log("演習データを作成中...");
   for (const exercise of exerciseData) {
@@ -54,8 +53,47 @@ async function main() {
     });
   }
   console.log(`${exerciseData.length}件の演習データを作成しました`);
-}
 
+  // testユーザーの全クイズ結果を満点で登録
+  console.log("テストユーザーのクイズ結果を作成中...");
+  const testUser = await prisma.user.findUnique({
+    where: { email: "test@example.com" },
+  });
+
+  if (testUser) {
+    const quizzes = await prisma.quiz.findMany({
+      include: { badge: true },
+    });
+
+    for (const quiz of quizzes) {
+      // クイズ結果作成
+      await prisma.quizResult.create({
+        data: {
+          userId: testUser.id,
+          quizId: quiz.id,
+          score: 10, // 満点
+          maxScore: 10,
+          completedAt: new Date(),
+        },
+      });
+
+      // バッジ作成
+      if (quiz.badge) {
+        await prisma.badge.create({
+          data: {
+            userId: testUser.id,
+            quizId: quiz.id,
+            name: quiz.badge.name,
+            description: quiz.badge.description,
+            imageUrl: quiz.badge.imageUrl,
+            achievedAt: new Date(),
+          },
+        });
+      }
+    }
+    console.log(`${quizzes.length}件のクイズ結果とバッジを作成しました`);
+  }
+}
 
 main()
   .then(async () => {
