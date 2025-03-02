@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Exercise } from "@/app/lib/definitions";
-import { getExercises } from "@/app/lib/exercises";
+import { getExercises } from "@/app/lib/client-exercises";
 import ExerciseCard from "@/app/ui/exercise/exercise-card";
 import Navbar from "@/app/ui/navbar";
 

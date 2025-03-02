@@ -1,97 +1,47 @@
+import fs from "fs";
+import path from "path";
+import { prisma } from "@/app/lib/prisma";
 import { ExerciseSubmission, TestResult } from "./definitions";
 
-// 演習データ
-export const exercises = [
-  {
-    id: "ex-001",
-    title: "シンプルなTodoアプリ",
-    description: "HTML, CSS, JavaScriptを使用した基本的なTodoアプリを作成する演習です。",
-    difficulty: "beginner",
-    category: "frontend",
-    tags: ["html", "css", "javascript"],
-    testDescription:
-      "テストでは、Todoアイテムの追加、切り替え、削除、フィルタリングの各機能が正しく動作するかを検証します。",
-    createdAt: new Date("2023-01-15"),
-    updatedAt: new Date("2023-01-15"),
-  },
-  // 他の演習データ
-];
-
-// 演習の取得関数
+// DBから演習一覧を取得する関数
 export async function getExercises() {
-  return exercises;
+  return prisma.exercise.findMany({
+    orderBy: { createdAt: "desc" },
+  });
 }
 
-// マークダウンのフォールバックデータを返す
-function getFallbackMarkdown(exerciseId: string) {
-  // 既存の演習データから該当する演習を探す
-  const exercise = exercises.find((ex) => ex.id === exerciseId);
-  if (!exercise) return "";
-
-  // ここに既存のマークダウンテキストを返す
-  return `
-
-## 要件
-
-1. **タスクの追加**: 入力フィールドにテキストを入力し、追加ボタンをクリックするとリストに追加される
-2. **タスクの完了/未完了**: タスクをクリックすると、取り消し線で完了/未完了を切り替えられる
-3. **タスクの削除**: 削除ボタンをクリックするとタスクが削除される
-
-## 技術的要件（自動テストのため）
-
-以下の要素とクラス名を使用してください：
-
-- 入力フィールド: \`<input id="todo-input">\`
-- 追加ボタン: \`<button id="add-button">\`
-- Todoリスト: \`<ul id="todo-list">\`
-- Todoアイテム: \`<li class="todo-item">\`
-- Todoテキスト: \`<span class="todo-text">\`
-- 完了状態のクラス: <code><strong>class="completed"</strong></code>
-- 削除ボタン: \`<button class="delete-btn">\`
-
-## 開発手順
-
-1. 新しいプロジェクトディレクトリを作成:
-
-\`\`\`bash
-mkdir my-todo-app
-cd my-todo-app
-\`\`\`
-
-2. 必要なファイルを作成:
-   - index.html
-   - styles.css
-   - script.js
-
-3. 要件に沿ってTodoアプリを実装してください
-
-## 提出方法
-
-1. 実装したコードをGitHubリポジトリにプッシュ:
-
-\`\`\`bash
-git init
-git add .
-git commit -m "Implement Todo app"
-git remote add origin https://github.com/あなたのユーザー名/あなたのリポジトリ名.git
-git push -u origin main
-\`\`\`
-
-2. リポジトリのURLを提出フォームに貼り付けて提出
-  `;
-}
-
+// 特定の演習とその説明文を取得する関数
 export async function getExerciseById(id: string) {
-  const exercise = exercises.find((ex) => ex.id === id);
+  const exercise = await prisma.exercise.findUnique({
+    where: { id },
+  });
+
   if (!exercise) return null;
 
-  // 代わりに静的なコンテンツを使用
-  const instructions = getFallbackMarkdown(id);
+  // マークダウンファイルから説明文を読み込む
+  const instructions = await getExerciseInstructions(id);
 
   return {
     ...exercise,
     instructions,
   };
+}
+
+// マークダウンファイルから説明文を読み込む関数
+export async function getExerciseInstructions(id: string): Promise<string> {
+  const filePath = path.join(
+    process.cwd(),
+    "app/content/exercises",
+    `${id}.md`
+  );
+
+  try {
+    const fileContent = fs.readFileSync(filePath, "utf8");
+    return fileContent;
+  } catch (error) {
+    console.error(`Failed to read exercise instructions for ${id}:`, error);
+    return "";
+  }
 }
 
 // クライアントサイドから呼び出すAPI関数

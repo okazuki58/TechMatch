@@ -9,12 +9,13 @@
     "start": "next start",
     "lint": "next lint",
     "prepare": "husky install",
+    "ps": "prisma studio",
     "migrate-quizzes": "ts-node --project tsconfig.json scripts/migrate-quizzes.ts",
     "build:test-runner": "node scripts/build-test-runner.js",
     "test-runners:clean": "docker rmi todo-app-test-runner -f || true"
   },
   "prisma": {
-    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.8.0",
@@ -33,6 +34,7 @@
     "react-hot-toast": "^2.5.2",
     "react-markdown": "^10.0.0",
     "react-syntax-highlighter": "^15.6.1",
+    "react-use": "^17.6.0",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.1",
     "simple-git": "^3.27.0",
@@ -53,6 +55,7 @@
     "postcss": "8.4.31",
     "tailwindcss": "3.3.0",
     "ts-node": "^10.9.2",
+    "tsx": "^4.19.3",
     "typescript": "^5"
   }
 }

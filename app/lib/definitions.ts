@@ -11,8 +11,7 @@ export interface QuizState {
   currentQuestionIndex: number;
   score: number;
   selectedOptionIndex: number | null;
-  showAnswer: boolean;
-  timeRemaining: number;
+  isAnswerEvaluated: boolean;
   questions: QuizQuestion[];
 }
 
@@ -76,12 +75,17 @@ export interface Company {
   description: string;
   industry: string;
   location: string;
-  employeeCount: number;
+  size: string;
+  foundedYear: number;
+  email: string;
+  phone: string;
   websiteUrl: string;
   logoUrl: string;
+  headerImageUrl: string;
   about?: string;
   jobCount?: number;
   createdAt: Date;
+  employeeCount?: number;
 }
 
 // 求人の型定義
@@ -107,6 +111,7 @@ export interface Job {
   postedAt: Date;
   updatedAt: Date;
   isActive: boolean;
+  imageUrl?: string;
 }
 
 // 応募の型定義
@@ -154,12 +159,12 @@ export interface Exercise {
   difficulty: string; // "beginner" | "intermediate" | "advanced" から変更
   category: string;
   tags: string[];
-  testDescription: string;
+  testDescription?: string | null;
   createdAt: Date;
   updatedAt: Date;
   instructions?: string;
   setupGuide?: string;
-  gifUrl?: string;
+  gifUrl?: string | null;
 }
 
 export interface ExerciseSubmission {
@@ -167,9 +172,10 @@ export interface ExerciseSubmission {
   exerciseId: string;
   userId: string;
   repositoryUrl: string;
-  status: "pending" | "testing" | "completed" | "failed";
-  submittedAt: Date;
+  status: string; // "pending", "completed", "failed"
   results: TestResult | null;
+  createdAt: string | Date; // createdAtを追加
+  updatedAt: string | Date;
 }
 
 export interface TestResult {

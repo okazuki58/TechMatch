@@ -21,13 +21,12 @@ export default function QuizPage() {
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // すべてのuseStateとuseEffectをコンポーネントのトップレベルに配置
+  // クイズの状態管理
   const [quizState, setQuizState] = useState<QuizState>({
     currentQuestionIndex: 0,
     score: 0,
     selectedOptionIndex: null,
-    showAnswer: false,
-    timeRemaining: 45,
+    isAnswerEvaluated: false,
     questions: [],
   });
 
@@ -55,26 +54,109 @@ export default function QuizPage() {
     fetchQuiz();
   }, [params.quizId]);
 
-  useEffect(() => {
-    if (!quiz) return;
+  // 選択肢を選んだときの処理
+  const handleSelectOption = (index: number) => {
+    // 解答表示後は選択できないようにする
+    if (quizState.isAnswerEvaluated) return;
 
-    if (quizState.timeRemaining > 0 && !quizState.showAnswer) {
-      const timer = setTimeout(() => {
-        setQuizState((prev) => ({
-          ...prev,
-          timeRemaining: prev.timeRemaining - 1,
-        }));
-      }, 1000);
+    setQuizState((prev) => ({
+      ...prev,
+      selectedOptionIndex: index,
+    }));
+  };
 
-      return () => clearTimeout(timer);
-    } else if (quizState.timeRemaining === 0 && !quizState.showAnswer) {
-      // 時間切れの場合は解答を表示
+  // 回答を提出して採点する処理
+  const handleSubmitAnswer = () => {
+    const currentQuestion = quizState.questions[quizState.currentQuestionIndex];
+    const isCorrect =
+      quizState.selectedOptionIndex === currentQuestion.correctAnswerIndex;
+    const isLastQuestion =
+      quizState.currentQuestionIndex === quizState.questions.length - 1;
+
+    // 新しいスコアを計算
+    const newScore = isCorrect ? quizState.score + 10 : quizState.score;
+
+    // 状態を更新
+    setQuizState((prev) => ({
+      ...prev,
+      score: newScore,
+      isAnswerEvaluated: true,
+    }));
+
+    // 最後の問題なら、この場で結果を確定して表示
+    if (isLastQuestion) {
+      // 最新のスコアで結果を作成して保存
+      saveQuizResult({
+        quizId: quiz?.id,
+        score: newScore,
+        maxScore: quizState.questions.length * 10,
+        completedAt: new Date(),
+      });
+    }
+  };
+
+  // 2. 新しいヘルパー関数を追加
+  const saveQuizResult = async (result: {
+    quizId: string | undefined;
+    score: number;
+    maxScore: number;
+    completedAt: Date;
+  }) => {
+    try {
+      const response = await fetch("/api/quizzes/results", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(result),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setQuizResult(data.quizResult);
+        setNewBadge(data.newBadge);
+        setQuizEnded(true);
+      }
+    } catch (error) {
+      console.error("結果保存エラー:", error);
+      // エラー時のフォールバック
+      setQuizResult({
+        id: `temp-${Date.now()}`,
+        quizId: quiz?.id ?? "",
+        quizName: quiz?.name ?? "",
+        score: result.score,
+        maxScore: result.maxScore,
+        completedAt: result.completedAt,
+      });
+      setQuizEnded(true);
+    }
+  };
+
+  // 次の問題に進む処理
+  const handleNextQuestion = () => {
+    const isLastQuestion =
+      quizState.currentQuestionIndex === quizState.questions.length - 1;
+
+    if (!isLastQuestion) {
+      // 最後の問題でなければ次へ
       setQuizState((prev) => ({
         ...prev,
-        showAnswer: true,
+        currentQuestionIndex: prev.currentQuestionIndex + 1,
+        selectedOptionIndex: null,
+        isAnswerEvaluated: false,
       }));
     }
-  }, [quizState.timeRemaining, quizState.showAnswer, quiz]);
+    // 最後の問題の場合は何もしない（handleSubmitAnswerで処理済み）
+  };
+
+  // 結果画面から次へ進むときの処理
+  const handleContinueAfterResult = async () => {
+    if (user) {
+      // セッションを更新してからリダイレクト
+      await fetch("/api/auth/session?update=true");
+      router.push("/profile");
+    } else {
+      router.push("/quizzes");
+    }
+  };
 
   // ローディング中の表示
   if (loading) {
@@ -109,121 +191,6 @@ export default function QuizPage() {
       </>
     );
   }
-
-  const handleSelectOption = (index: number) => {
-    if (quizState.showAnswer) return; // 解答表示後は選択できない
-
-    setQuizState((prev) => ({
-      ...prev,
-      selectedOptionIndex: index,
-    }));
-  };
-
-  const handleSubmitAnswer = () => {
-    const currentQuestion = quizState.questions[quizState.currentQuestionIndex];
-    const isCorrect =
-      quizState.selectedOptionIndex === currentQuestion.correctAnswerIndex;
-
-    setQuizState((prev) => ({
-      ...prev,
-      score: isCorrect ? prev.score + 100 : prev.score,
-      showAnswer: true,
-    }));
-  };
-
-  const handleNextQuestion = () => {
-    const isLastQuestion =
-      quizState.currentQuestionIndex === quizState.questions.length - 1;
-
-    if (isLastQuestion) {
-      finishQuiz();
-    } else {
-      // 次の問題へ
-      setQuizState((prev) => ({
-        ...prev,
-        currentQuestionIndex: prev.currentQuestionIndex + 1,
-        selectedOptionIndex: null,
-        showAnswer: false,
-        timeRemaining: 20,
-      }));
-    }
-  };
-
-  const finishQuiz = async () => {
-    // テスト終了処理
-    const maxScore = quizState.questions.length * 100;
-    const completedAt = new Date();
-
-    if (user) {
-      try {
-        console.log("結果を保存中...", {
-          quizId: quiz.id,
-          score: quizState.score,
-          maxScore,
-        });
-
-        // APIを呼び出してテスト結果を保存
-        const response = await fetch("/api/quizzes/results", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            quizId: quiz.id,
-            score: quizState.score,
-            maxScore,
-            completedAt,
-          }),
-        });
-
-        const responseData = await response.json();
-
-        if (!response.ok) {
-          console.error("保存失敗レスポンス:", responseData);
-          throw new Error(
-            responseData.error || "テスト結果の保存に失敗しました"
-          );
-        }
-
-        console.log("結果保存成功:", responseData);
-        setQuizResult(responseData.quizResult);
-        setNewBadge(responseData.newBadge);
-      } catch (error) {
-        console.error("テスト結果の保存中にエラーが発生しました:", error);
-        // エラーが発生しても、ユーザーには結果を表示
-        setQuizResult({
-          id: `temp-${Date.now()}`,
-          quizId: quiz.id,
-          quizName: quiz.name,
-          score: quizState.score,
-          maxScore,
-          completedAt,
-        });
-      }
-    } else {
-      // 未ログインユーザーの場合は結果だけ表示
-      setQuizResult({
-        id: `temp-${Date.now()}`,
-        quizId: quiz.id,
-        quizName: quiz.name,
-        score: quizState.score,
-        maxScore,
-        completedAt,
-      });
-    }
-
-    setQuizEnded(true);
-  };
-
-  const handleContinueAfterResult = async () => {
-    if (user) {
-      // セッションを更新してからリダイレクト
-      await fetch("/api/auth/session?update=true");
-      router.push("/dashboard");
-    } else {
-      router.push("/quizzes");
-    }
-  };
 
   const currentQuestion = quizState.questions[quizState.currentQuestionIndex];
   const progress =
@@ -287,7 +254,7 @@ export default function QuizPage() {
             <QuizCard
               question={currentQuestion}
               selectedOptionIndex={quizState.selectedOptionIndex}
-              showAnswer={quizState.showAnswer}
+              isAnswerEvaluated={quizState.isAnswerEvaluated}
               onSelectOption={handleSelectOption}
               onSubmitAnswer={handleSubmitAnswer}
               onNextQuestion={handleNextQuestion}

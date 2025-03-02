@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/app/lib/contexts/auth-context";
-import { getExerciseById, submitExercise } from "@/app/lib/exercises";
+import { getExerciseById, submitExercise } from "@/app/lib/client-exercises";
 import { Exercise } from "@/app/lib/definitions";
 import Navbar from "@/app/ui/navbar";
 import RepositoryForm from "@/app/ui/exercise/repository-form";
@@ -13,11 +13,9 @@ import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import type { Components } from "react-markdown";
-import { visit } from "unist-util-visit";
-import { toString } from "hast-util-to-string";
 import rehypeRaw from "rehype-raw";
-import type { Element } from "hast";
 import type { Node as UnistNode } from "unist";
+import Image from "next/image";
 
 interface CodeProps {
   node?: UnistNode;
@@ -27,41 +25,7 @@ interface CodeProps {
   [key: string]: unknown;
 }
 
-interface ElementWithParent extends Element {
-  parent?: {
-    children: ElementWithParent[];
-    [key: string]: unknown;
-  };
-}
-
 type SyntaxHighlighterStyle = { [key: string]: React.CSSProperties };
-
-// カスタムrehypeプラグイン - class="completed"を強調表示する
-function rehypeHighlightClassCompleted() {
-  return (tree: UnistNode) => {
-    visit(tree, "element", (node: ElementWithParent) => {
-      if (node.tagName === "code") {
-        const value = toString(node);
-        if (value === 'class="completed"') {
-          // parent と children が存在するか確認
-          if (node.parent && Array.isArray(node.parent.children)) {
-            const parentIndex = node.parent.children.indexOf(node);
-            if (parentIndex !== -1) {
-              const strongNode: ElementWithParent = {
-                type: "element",
-                tagName: "strong",
-                properties: {},
-                children: [node],
-              };
-
-              node.parent.children.splice(parentIndex, 1, strongNode);
-            }
-          }
-        }
-      }
-    });
-  };
-}
 
 export default function ExerciseDetailPage() {
   const params = useParams();
@@ -83,7 +47,9 @@ export default function ExerciseDetailPage() {
 
         // リスト内のHTMLタグを含むコードは常にインラインとして扱う
         const isHtmlTag = codeContent.match(/^<.*>$/);
-        const forceInline = isHtmlTag && codeContent.length < 50;
+        const isHtmlAttribute = codeContent.match(/^[a-z]+="[^"]+"$/);
+        const forceInline =
+          (isHtmlTag || isHtmlAttribute) && codeContent.length < 50;
 
         const match = /language-(\w+)/.exec(className || "");
 
@@ -160,7 +126,7 @@ export default function ExerciseDetailPage() {
         <div className="prose prose-slate max-w-none markdown-body">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeRaw, rehypeHighlightClassCompleted]}
+            rehypePlugins={[rehypeRaw]}
             components={components}
           >
             {content}
@@ -330,6 +296,27 @@ export default function ExerciseDetailPage() {
                 </span>
               ))}
             </div>
+
+            {exercise.gifUrl && (
+              <div className="my-8 flex justify-center">
+                <div className="relative max-w-full overflow-hidden rounded-lg shadow-lg border border-gray-200">
+                  <Image
+                    src={exercise.gifUrl}
+                    alt={`${exercise.title}の説明GIF`}
+                    width={800}
+                    height={450}
+                    className="w-full h-auto"
+                    style={{ maxHeight: "450px", objectFit: "contain" }}
+                    unoptimized={!exercise.gifUrl.startsWith("/")}
+                  />
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
+                    <p className="text-white text-sm font-medium">
+                      完成イメージのデモ
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="prose max-w-none">
               {renderMarkdown(exercise?.instructions)}

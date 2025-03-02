@@ -18,7 +18,7 @@ const LoginForm: React.FC = () => {
     try {
       const user = await login(email, password);
       if (user) {
-        router.push("/dashboard");
+        router.push("/profile");
       } else {
         setError("メールアドレスまたはパスワードが間違っています");
       }

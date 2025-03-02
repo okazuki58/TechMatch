@@ -14,6 +14,11 @@ model User {
   emailVerified DateTime?
   password      String?
   image         String?
+  bio           String?   @db.Text
+  motivation    String?   @db.Text
+  githubUrl     String?
+  twitterUrl    String?
+  linkedinUrl   String?
   accounts      Account[]
   sessions      Session[]
   badges        Badge[]
@@ -58,13 +63,16 @@ model VerificationToken {
 }
 
 model Exercise {
-  id          String    @id @default(cuid())
-  title       String
-  description String
-  difficulty  String    // "beginner", "intermediate", "advanced"
-  // submissions ExerciseSubmission[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id             String   @id
+  title          String
+  description    String
+  difficulty     String
+  category       String
+  tags           String[]
+  testDescription String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  gifUrl         String?
 }
 
 model ExerciseSubmission {
@@ -105,7 +113,7 @@ model Badge {
 }
 
 model Quiz {
-  id          String       @id @default(cuid())
+  id          String       @id
   name        String
   description String
   category    String
@@ -140,3 +148,44 @@ model QuizBadge {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model Company {
+  id          String    @id @default(cuid())
+  name        String
+  description String?   @db.Text
+  industry    String?
+  logoUrl     String?
+  headerImageUrl String?
+  websiteUrl  String?
+  location    String?
+  size        String?   // "startup", "small", "medium", "large", "enterprise"
+  foundedYear Int?
+  email       String?
+  phone       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  jobs        Job[]
+  employeeCount Int?
+}
+
+model Job {
+  id              String    @id @default(cuid())
+  companyId       String
+  title           String
+  description     String    @db.Text
+  requirements    String[]
+  preferredSkills String[]
+  location        String
+  employmentType  String    // "full-time", "part-time", "contract"
+  experienceLevel String    // "entry", "mid", "senior" 
+  salary          Json      // { min: number, max: number, currency: string }
+  requiredQuizzes Json[]    // [{ quizId: string, minimumScore: number }]
+  postedAt        DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  isActive        Boolean   @default(true)
+  imageUrl        String?
+  
+  // Company モデルとのリレーション
+  company        Company   @relation(fields: [companyId], references: [id])
+}
+

@@ -14,8 +14,6 @@ export async function GET(
         { status: 400 }
       );
     }
-
-    // 直接Prismaを使用して問題を回避
     const quiz = await prisma.quiz.findUnique({
       where: {
         id: params.quizId,

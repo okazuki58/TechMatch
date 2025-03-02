@@ -6,6 +6,7 @@ import { Company } from "@/app/lib/definitions";
 interface CompanyCardProps {
   company: Company;
   showJobCount?: boolean;
+  onClick?: () => void;
 }
 
 export default function CompanyCard({

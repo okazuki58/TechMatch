@@ -4,7 +4,7 @@ import { QuizQuestion } from "@/app/lib/definitions";
 interface QuizCardProps {
   question: QuizQuestion;
   selectedOptionIndex: number | null;
-  showAnswer: boolean;
+  isAnswerEvaluated: boolean;
   onSelectOption: (index: number) => void;
   onSubmitAnswer: () => void;
   onNextQuestion: () => void;
@@ -14,7 +14,7 @@ interface QuizCardProps {
 const QuizCard: React.FC<QuizCardProps> = ({
   question,
   selectedOptionIndex,
-  showAnswer,
+  isAnswerEvaluated,
   onSelectOption,
   onSubmitAnswer,
   onNextQuestion,
@@ -33,12 +33,24 @@ const QuizCard: React.FC<QuizCardProps> = ({
     return className;
   };
 
-  // 選択肢を選んだ時に即座に回答提出
-  const handleOptionSelect = (index: number) => {
-    if (!showAnswer && selectedOptionIndex === null) {
-      onSelectOption(index);
+  // 次へボタンがクリックされたときの処理
+  const handleNextButtonClick = () => {
+    if (selectedOptionIndex === null) return;
+
+    // 最後の問題で、まだ採点されてない場合
+    if (!isAnswerEvaluated && isLastQuestion) {
+      // 採点してから
+      onSubmitAnswer();
+      // 少し遅延を入れてから次へ
+      setTimeout(() => onNextQuestion(), 100);
+      return;
+    }
+
+    // 通常のフロー
+    if (!isAnswerEvaluated) {
       onSubmitAnswer();
     }
+    onNextQuestion();
   };
 
   return (
@@ -57,7 +69,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
           <div
             key={index}
             className={getOptionClassName(index)}
-            onClick={() => handleOptionSelect(index)}
+            onClick={() => onSelectOption(index)}
           >
             {option}
           </div>
@@ -75,15 +87,17 @@ const QuizCard: React.FC<QuizCardProps> = ({
           ヒント
         </button>
 
-        {showAnswer ? (
-          <button className="btn btn-primary" onClick={onNextQuestion}>
-            {isLastQuestion ? "結果を表示" : "次の問題"}
-          </button>
-        ) : (
-          <button className="btn btn-disabled" disabled>
-            回答を選択してください
-          </button>
-        )}
+        <button
+          className={
+            selectedOptionIndex !== null
+              ? "btn btn-primary"
+              : "btn btn-disabled"
+          }
+          disabled={selectedOptionIndex === null}
+          onClick={handleNextButtonClick}
+        >
+          {isLastQuestion ? "結果を表示" : "次の問題"}
+        </button>
       </div>
     </div>
   );

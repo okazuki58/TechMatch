@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Job } from "@/app/lib/definitions";
-import { quizzes } from "@/app/lib/quizzes";
 
 interface JobFormProps {
   companyId: string;
@@ -19,6 +18,9 @@ export default function JobForm({
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [quizzes, setQuizzes] = useState<
+    Array<{ id: string; name: string; category: string }>
+  >([]);
   const [requiredQuizzes, setRequiredQuizzes] = useState<
     Array<{ quizId: string; minimumScore: number }>
   >([]);
@@ -37,6 +39,23 @@ export default function JobForm({
     salaryMax: initialData?.salary?.max.toString() || "700000",
     ...initialData,
   });
+
+  // クイズデータを取得
+  useEffect(() => {
+    const fetchQuizzes = async () => {
+      try {
+        const response = await fetch("/api/quizzes");
+        if (response.ok) {
+          const data = await response.json();
+          setQuizzes(data);
+        }
+      } catch (error) {
+        console.error("クイズデータの取得に失敗しました:", error);
+      }
+    };
+
+    fetchQuizzes();
+  }, []);
 
   // 初期データがある場合は必須テストも設定
   useEffect(() => {

@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { getExerciseById, getTestResults } from "@/app/lib/exercises";
+import { getExerciseById, getTestResults } from "@/app/lib/client-exercises";
 import { Exercise, TestResult } from "@/app/lib/definitions";
 import Navbar from "@/app/ui/navbar";
 import TestResults from "@/app/ui/exercise/test-results";
-import LoadingSpinner from "@/app/ui/laoding-spinner"; // ローディングコンポーネントを作成
+import LoadingSpinner from "@/app/ui/laoding-spinner";
 
 export default function ExerciseResultsPage({
   params,

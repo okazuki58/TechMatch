@@ -1,21 +1,34 @@
 // app/ui/navbar.tsx
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/app/lib/contexts/auth-context";
 import { useRouter, usePathname } from "next/navigation";
+import { useClickAway } from "react-use";
 
 const Navbar: React.FC = () => {
   const { user, signOut } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const handleLogout = () => {
     signOut();
     router.push("/");
   };
+
+  // メニューとボタン以外がクリックされたとき
+  useClickAway(menuRef, (event: Event) => {
+    // ボタンをクリックした場合は無視（ボタンクリックは別途処理）
+    if (buttonRef.current && buttonRef.current.contains(event.target as Node)) {
+      return;
+    }
+    // メニューを閉じる
+    setIsMenuOpen(false);
+  });
 
   // ナビゲーションリンクのスタイルを決定する関数
   const getLinkClassName = (path: string) => {
@@ -43,16 +56,10 @@ const Navbar: React.FC = () => {
               <span className="text-xl font-bold text-blue-700">DevExam</span>
             </Link>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-              <Link
-                href="/"
-                className={getLinkClassName("/")}
-              >
+              <Link href="/" className={getLinkClassName("/")}>
                 ホーム
               </Link>
-              <Link
-                href="/quizzes"
-                className={getLinkClassName("/quizzes")}
-              >
+              <Link href="/quizzes" className={getLinkClassName("/quizzes")}>
                 スキルテスト
               </Link>
               <Link
@@ -61,10 +68,7 @@ const Navbar: React.FC = () => {
               >
                 演習問題
               </Link>
-              <Link
-                href="/jobs"
-                className={getLinkClassName("/jobs")}
-              >
+              <Link href="/jobs" className={getLinkClassName("/jobs")}>
                 求人情報
               </Link>
               <Link
@@ -85,29 +89,48 @@ const Navbar: React.FC = () => {
             {user ? (
               <div className="relative">
                 <button
+                  ref={buttonRef}
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="flex items-center text-sm rounded-full hover:bg-gray-50 p-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                    <span className="text-blue-700 font-medium">
+                  <div className="h-9 w-9 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 shadow-sm flex items-center justify-center">
+                    <span className="text-white font-semibold">
                       {user.name?.charAt(0).toUpperCase() ||
                         user.email?.charAt(0).toUpperCase() ||
                         "U"}
                     </span>
                   </div>
-                  <span className="ml-2 text-gray-700 flex items-center">
-                    {user.name || user.email || "ユーザー"}
-                  </span>
+                  <div className="ml-2 flex flex-col items-start">
+                    <span className="text-gray-800 font-medium line-clamp-1">
+                      {user.name || user.email?.split("@")[0] || "ユーザー"}
+                    </span>
+                    {user.name && user.email && (
+                      <span className="text-xs text-gray-500 line-clamp-1">
+                        {user.email}
+                      </span>
+                    )}
+                  </div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className={`w-5 h-5 ml-1 text-gray-400 transition-transform duration-200 ${
+                      isMenuOpen ? "rotate-180" : ""
+                    }`}
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
                 </button>
 
                 {isMenuOpen && (
-                  <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
-                    <Link
-                      href="/dashboard"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      ダッシュボード
-                    </Link>
+                  <div
+                    ref={menuRef}
+                    className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
+                  >
                     <Link
                       href="/profile"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -192,22 +215,13 @@ const Navbar: React.FC = () => {
       {/* モバイルメニュー */}
       <div className={`${isMenuOpen ? "block" : "hidden"} sm:hidden`}>
         <div className="pt-2 pb-3 space-y-1">
-          <Link
-            href="/"
-            className={getMobileLinkClassName("/")}
-          >
+          <Link href="/" className={getMobileLinkClassName("/")}>
             ホーム
           </Link>
-          <Link
-            href="/quizzes"
-            className={getMobileLinkClassName("/quizzes")}
-          >
+          <Link href="/quizzes" className={getMobileLinkClassName("/quizzes")}>
             スキルテスト
           </Link>
-          <Link
-            href="/jobs"
-            className={getMobileLinkClassName("/jobs")}
-          >
+          <Link href="/jobs" className={getMobileLinkClassName("/jobs")}>
             求人情報
           </Link>
           <Link
@@ -246,12 +260,6 @@ const Navbar: React.FC = () => {
               </div>
             </div>
             <div className="mt-3 space-y-1">
-              <Link
-                href="/dashboard"
-                className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
-              >
-                ダッシュボード
-              </Link>
               <Link
                 href="/profile"
                 className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"

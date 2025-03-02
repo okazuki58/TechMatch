@@ -1,12 +1,13 @@
 export const quizData = [
   {
+    id: "quiz-001",
     name: "Web概論クイズ",
     description: "Webの仕組みや関連技術についての基礎知識を問うクイズです",
     category: "Web開発",
     difficulty: "easy",
     badge: {
       create: {
-        name: "Web基礎マスター",
+        name: "Web基礎",
         description: "Webの基礎知識をマスターした証",
         imageUrl: "/badges/web-basics.svg",
       },
@@ -127,13 +128,14 @@ export const quizData = [
     },
   },
   {
+    id: "quiz-002",
     name: "Gitとチーム開発クイズ",
     description: "Git操作とチーム開発の知識を問うクイズです",
     category: "Git",
     difficulty: "medium",
     badge: {
       create: {
-        name: "Git達人バッジ",
+        name: "Git基礎",
         description: "Gitとチーム開発のスキルを証明するバッジ",
         imageUrl: "/badges/git-master.svg",
       },
@@ -256,13 +258,14 @@ export const quizData = [
     },
   },
   {
+    id: "quiz-003",
     name: "プログラミング基礎クイズ",
     description: "プログラミングの基本的な概念と知識を問うクイズです",
     category: "プログラミング",
     difficulty: "easy",
     badge: {
       create: {
-        name: "プログラミング基礎マスター",
+        name: "プログラミング基礎",
         description: "プログラミングの基礎知識をマスターした証",
         imageUrl: "/badges/programming-basics.svg",
       },
@@ -378,13 +381,14 @@ export const quizData = [
     },
   },
   {
+    id: "quiz-004",
     name: "Ruby基礎クイズ",
     description: "Rubyの基本的な文法と機能を問うクイズです",
     category: "Ruby",
     difficulty: "medium",
     badge: {
       create: {
-        name: "Ruby基礎マスター",
+        name: "Ruby基礎",
         description: "Rubyの基礎知識をマスターした証",
         imageUrl: "/badges/ruby-basics.svg",
       },
@@ -505,13 +509,14 @@ export const quizData = [
     },
   },
   {
+    id: "quiz-005",
     name: "Rails基礎クイズ",
     description: "Ruby on Railsの基本的な機能と使い方を問うクイズです",
     category: "Ruby on Rails",
     difficulty: "medium",
     badge: {
       create: {
-        name: "Rails基礎マスター",
+        name: "Rails基礎",
         description: "Ruby on Railsの基礎知識をマスターした証",
         imageUrl: "/badges/rails-basics.svg",
       },
@@ -631,13 +636,14 @@ export const quizData = [
     },
   },
   {
+    id: "quiz-006",
     name: "データベースとSQLクイズ",
     description: "データベースとSQLの基礎知識を問うクイズです",
     category: "データベース",
     difficulty: "medium",
     badge: {
       create: {
-        name: "データベースマスター",
+        name: "データベース基礎",
         description: "データベースとSQLの基礎知識をマスターした証",
         imageUrl: "/badges/database-master.svg",
       },
@@ -750,13 +756,14 @@ export const quizData = [
     },
   },
   {
+    id: "quiz-007",
     name: "Rails応用クイズ",
     description: "Ruby on Railsの応用的な知識とテクニックを問うクイズです",
     category: "Ruby on Rails",
     difficulty: "hard",
     badge: {
       create: {
-        name: "Rails上級バッジ",
+        name: "Rails上級",
         description: "Ruby on Railsの応用知識をマスターした証",
         imageUrl: "/badges/rails-advanced.svg",
       },
