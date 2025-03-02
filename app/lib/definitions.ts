@@ -11,8 +11,7 @@ export interface QuizState {
   currentQuestionIndex: number;
   score: number;
   selectedOptionIndex: number | null;
-  showAnswer: boolean;
-  timeRemaining: number;
+  isAnswerEvaluated: boolean;
   questions: QuizQuestion[];
 }
 

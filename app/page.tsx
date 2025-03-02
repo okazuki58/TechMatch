@@ -37,7 +37,7 @@ export default function Home() {
               </Link>
             ) : (
               <Link
-                href="/dashboard"
+                href="/profile"
                 className="btn btn-outline px-6 py-3 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition"
               >
                 マイダッシュボード

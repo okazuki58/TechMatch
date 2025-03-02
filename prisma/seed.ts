@@ -15,10 +15,18 @@ async function main() {
     prisma.exerciseSubmission.deleteMany({}),
     prisma.badge.deleteMany({}),
 
+    // 中間テーブル
+    prisma.quizBadge.deleteMany({}),
+
     // 親テーブルを削除
     prisma.exercise.deleteMany({}),
     prisma.quiz.deleteMany({}),
     prisma.user.deleteMany({}),
+
+    // その他すべてのテーブル（存在する場合）
+    prisma.$queryRaw`TRUNCATE TABLE "Session" CASCADE;`,
+    prisma.$queryRaw`TRUNCATE TABLE "Account" CASCADE;`,
+    prisma.$queryRaw`TRUNCATE TABLE "VerificationToken" CASCADE;`,
   ]);
 
   console.log("データベースをリセットしました");
@@ -71,8 +79,8 @@ async function main() {
         data: {
           userId: testUser.id,
           quizId: quiz.id,
-          score: 10, // 満点
-          maxScore: 10,
+          score: 100, // 満点
+          maxScore: 100,
           completedAt: new Date(),
         },
       });

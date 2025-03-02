@@ -13,7 +13,7 @@ export default function RegisterPage() {
   // すでにログインしている場合はダッシュボードへリダイレクト
   React.useEffect(() => {
     if (user) {
-      router.push("/dashboard");
+      router.push("/profile");
     }
   }, [user, router]);
 
