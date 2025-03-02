@@ -155,6 +155,7 @@ model Company {
   description String?   @db.Text
   industry    String?
   logoUrl     String?
+  headerImageUrl String?
   websiteUrl  String?
   location    String?
   size        String?   // "startup", "small", "medium", "large", "enterprise"
@@ -164,6 +165,7 @@ model Company {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   jobs        Job[]
+  employeeCount Int?
 }
 
 model Job {

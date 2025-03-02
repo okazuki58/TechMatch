@@ -1,216 +1,150 @@
-import React from "react";
-import Link from "next/link";
 import Image from "next/image";
-import { Job, QuizResult } from "@/app/lib/definitions";
-import { formatDate } from "@/app/lib/utils";
+import Link from "next/link";
+import { Job } from "@/app/lib/definitions";
+
+// 型定義
+interface CompanyType {
+  id: string;
+  name: string;
+  logoUrl?: string;
+}
+
+type SalaryType = {
+  min: number;
+  max: number;
+  currency: string;
+};
 
 interface JobCardProps {
   job: Job;
-  company?: {
-    id: string;
-    name: string;
-    logoUrl?: string;
-  };
-  userQuizResults?: QuizResult[];
-  compact?: boolean;
+  company?: CompanyType;
 }
 
-export default function JobCard({
-  job,
-  company,
-  userQuizResults,
-  compact = false,
-}: JobCardProps) {
-  const logoPath =
-    company?.logoUrl ||
-    `/company/company0${
-      (parseInt(company?.id.split("-")[1] || "0") % 4) + 1
-    }.jpg`;
-  // ユーザーがこの求人に応募可能かチェック
-  const isEligible = React.useMemo(() => {
-    if (!job.requiredQuizzes || job.requiredQuizzes.length === 0) return true;
-    if (!userQuizResults) return false;
-
-    return job.requiredQuizzes.every((requiredQuiz) => {
-      const userResult = userQuizResults.find(
-        (result) => result.quizId === requiredQuiz.quizId
-      );
-      if (!userResult) return false;
-
-      const percentageScore = (userResult.score / userResult.maxScore) * 100;
-      return percentageScore >= requiredQuiz.minimumScore;
-    });
-  }, [job, userQuizResults]);
-
-  // 雇用形態の表示名
-  const employmentTypeLabel = {
-    "full-time": "正社員",
-    "part-time": "パートタイム",
-    contract: "契約社員",
-    internship: "インターンシップ",
-  }[job.employmentType];
-
-  // 経験レベルの表示名
-  const experienceLevelLabel = {
-    entry: "未経験・エントリー",
-    mid: "中級者",
-    senior: "シニア",
-  }[job.experienceLevel];
-
-  if (compact) {
-    return (
-      <div className="bg-white rounded-lg border border-gray-100 p-4 hover:shadow-sm transition-shadow">
-        <div className="flex justify-between">
-          <h3 className="font-semibold">{job.title}</h3>
-          <span className="text-sm text-gray-500">
-            {formatDate(job.postedAt)}
-          </span>
-        </div>
-        <div className="mt-2 flex space-x-2">
-          <span className="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full">
-            {employmentTypeLabel}
-          </span>
-          <span className="px-2 py-0.5 bg-gray-100 text-gray-800 text-xs rounded-full">
-            {experienceLevelLabel}
-          </span>
-        </div>
-        <div className="mt-2 flex justify-between items-center">
-          <div className="text-sm text-gray-700">
-            {job.salary.min.toLocaleString()} 〜{" "}
-            {job.salary.max.toLocaleString()} 円/月
-          </div>
+export default function JobCard({ job, company }: JobCardProps) {
+  return (
+    <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300 group">
+      <div className="flex flex-col">
+        {/* 求人画像 - 横長比率に調整 */}
+        {job.imageUrl && (
           <Link
             href={`/jobs/${job.id}`}
-            className="text-sm text-blue-600 hover:underline"
+            className="w-full h-56 relative overflow-hidden block"
           >
-            詳細を見る
+            <Image
+              src={job.imageUrl}
+              alt={job.title}
+              fill
+              className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+            />
+            {/* エクスペリエンスレベルのバッジ */}
+            <div className="absolute top-3 left-3 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+              {job.experienceLevel === "entry"
+                ? "未経験可"
+                : job.experienceLevel === "mid"
+                ? "中級者向け"
+                : "上級者向け"}
+            </div>
           </Link>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
-      {/* 横長の企業画像を追加 */}
-      <div className="relative w-full h-48 bg-gray-100">
-        <Image
-          src={logoPath}
-          alt={company?.name || "企業画像"}
-          fill
-          className="object-cover"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50"></div>
-        <div className="absolute bottom-0 left-0 p-6">
-          <h2 className="text-xl font-bold text-white">{job.title}</h2>
-          <p className="text-sm text-white mb-2">{company?.name}</p>
-          <div className="flex flex-wrap gap-2">
-            <span className="px-2 py-1 bg-blue-500/80 text-white text-xs rounded-full">
-              {employmentTypeLabel}
-            </span>
-            <span className="px-2 py-1 bg-gray-600/80 text-white text-xs rounded-full">
-              {job.location}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div className="p-6">
-        <div className="mt-4">
-          <p className="text-gray-700">{job.description}</p>
-        </div>
-
-        <div className="mt-4 flex flex-wrap gap-2">
-          {job.preferredSkills.map((skill, index) => (
-            <span
-              key={index}
-              className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded"
-            >
-              {skill}
-            </span>
-          ))}
-        </div>
-
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="text-gray-700">
-            <span className="font-medium">給与: </span>
-            {job.salary.min.toLocaleString()} 〜{" "}
-            {job.salary.max.toLocaleString()} 円/月
-          </div>
-          <div className="text-gray-700">
-            <span className="font-medium">勤務地: </span>
-            {job.location}
-          </div>
-          <div className="text-gray-700">
-            <span className="font-medium">経験: </span>
-            {experienceLevelLabel}
-          </div>
-        </div>
-
-        {job.requiredQuizzes && job.requiredQuizzes.length > 0 && (
-          <div className="mt-4 p-3 bg-amber-50 rounded-md">
-            <h3 className="font-medium text-amber-800">応募条件</h3>
-            <ul className="mt-1 text-sm text-amber-700">
-              {job.requiredQuizzes.map((quiz, index) => (
-                <li key={index} className="flex items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4 mr-1 text-amber-500"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  スキルテスト「{quiz.quizId}」で{quiz.minimumScore}
-                  %以上のスコア
-                </li>
-              ))}
-            </ul>
-          </div>
         )}
 
-        <div className="mt-6 flex justify-between items-center">
-          <Link
-            href={`/jobs/${job.id}`}
-            className="text-blue-600 hover:underline"
-          >
-            詳細を見る
-          </Link>
-
-          {userQuizResults ? (
-            isEligible ? (
-              <Link
-                href={`/jobs/${job.id}/apply`}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-              >
-                応募する
+        <div className="p-6">
+          <div className="flex justify-between items-start">
+            <div>
+              <Link href={`/jobs/${job.id}`}>
+                <h3 className="text-xl font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors hover:text-blue-700">
+                  {job.title}
+                </h3>
               </Link>
-            ) : (
-              <div className="flex items-center">
-                <span className="text-amber-600 mr-2">
-                  必要なスキルテストを完了してください
-                </span>
+              <div className="flex items-center mb-2">
+                {company?.logoUrl && (
+                  <div className="h-6 w-6 relative mr-2">
+                    <Image
+                      src={company.logoUrl}
+                      alt={company?.name || ""}
+                      fill
+                      className="rounded-full object-cover"
+                    />
+                  </div>
+                )}
                 <Link
-                  href="/quizzes"
-                  className="px-3 py-1 bg-amber-100 text-amber-800 rounded-md hover:bg-amber-200"
+                  href={`/companies/${company?.id}`}
+                  className="text-gray-600 hover:text-blue-600 transition-colors"
                 >
-                  テストを受ける
+                  {company?.name}
                 </Link>
               </div>
-            )
-          ) : (
-            <Link
-              href="/login"
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
-            >
-              ログインして応募
+            </div>
+            <div className="text-right">
+              <span className="inline-block bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full">
+                {job.salary &&
+                  `${(job.salary as SalaryType).min / 10000}〜${
+                    (job.salary as SalaryType).max / 10000
+                  }万円`}
+              </span>
+            </div>
+          </div>
+
+          {/* タグセクション */}
+          <div className="mt-3 mb-4 flex flex-wrap gap-2">
+            <span className="bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full">
+              {job.employmentType === "full-time"
+                ? "正社員"
+                : job.employmentType === "part-time"
+                ? "パートタイム"
+                : job.employmentType === "contract"
+                ? "契約社員"
+                : "インターン"}
+            </span>
+            <span className="bg-purple-50 text-purple-700 text-xs px-3 py-1 rounded-full">
+              {job.location}
+            </span>
+            {job.preferredSkills.slice(0, 3).map((skill, index) => (
+              <span
+                key={index}
+                className="bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full"
+              >
+                {skill}
+              </span>
+            ))}
+            {job.preferredSkills.length > 3 && (
+              <span className="bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full">
+                +{job.preferredSkills.length - 3}
+              </span>
+            )}
+          </div>
+
+          {/* 説明文（最初の150文字のみ表示） */}
+          <p className="text-gray-600 mb-4 line-clamp-2">
+            {job.description.substring(0, 150)}...
+          </p>
+
+          {/* ボタンエリア */}
+          <div className="flex justify-between items-center mt-4">
+            <div>
+              <span className="text-sm text-gray-500">
+                {new Date(job.postedAt).toLocaleDateString("ja-JP")}に投稿
+              </span>
+            </div>
+            <Link href={`/jobs/${job.id}`}>
+              <span className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                詳細を見る
+                <svg
+                  className="ml-2 w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M14 5l7 7m0 0l-7 7m7-7H3"
+                  ></path>
+                </svg>
+              </span>
             </Link>
-          )}
+          </div>
         </div>
       </div>
     </div>
