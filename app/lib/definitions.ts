@@ -159,6 +159,7 @@ export interface Exercise {
   updatedAt: Date;
   instructions?: string;
   setupGuide?: string;
+  gifUrl?: string;
 }
 
 export interface ExerciseSubmission {

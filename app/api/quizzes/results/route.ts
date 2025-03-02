@@ -1,104 +1,145 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-import { getServerSession } from "next-auth/next";
+import { prisma } from "@/app/lib/prisma";
+import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-
-const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
+    const body = await request.json();
 
-    if (!session || !session.user || !session.user.id) {
-      return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
+    // セッションチェック
+    if (!session?.user?.email) {
+      console.log("未認証ユーザー");
+      return NextResponse.json({
+        quizResult: {
+          id: `temp-${Date.now()}`,
+          quizId: body.quizId,
+          quizName: "クイズ",
+          score: body.score,
+          maxScore: body.maxScore,
+          completedAt: new Date(),
+        },
+        newBadge: null,
+      });
     }
 
-    const { quizId, score, maxScore, completedAt } = await request.json();
+    // ユーザーをメールアドレスで検索
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
 
-    // 入力検証
-    if (!quizId || typeof score !== "number" || typeof maxScore !== "number") {
+    if (!user) {
+      console.error(`ユーザーが見つかりません: ${session.user.email}`);
       return NextResponse.json(
-        { error: "無効なリクエストデータです" },
+        { error: "ユーザーが見つかりません。再ログインしてください。" },
+        { status: 404 }
+      );
+    }
+
+    const userId = user.id;
+
+    // 必須パラメーターチェック
+    if (!body.quizId || body.score === undefined || !body.maxScore) {
+      return NextResponse.json(
+        { error: "必須パラメーターが不足しています" },
         { status: 400 }
       );
     }
 
-    const userId = session.user.id;
-
-    // クイズ結果を保存
-    const quizResult = await prisma.quizResult.create({
-      data: {
-        quizId,
-        userId,
-        score,
-        maxScore,
-        completedAt: completedAt ? new Date(completedAt) : new Date(),
+    // 既存の結果を確認
+    const existingResult = await prisma.quizResult.findFirst({
+      where: {
+        quizId: body.quizId,
+        userId: userId,
+      },
+      include: {
+        quiz: true,
       },
     });
 
-    // バッジ獲得条件をチェック
-    const scorePercentage = (score / maxScore) * 100;
+    let quizResult;
     let newBadge = null;
 
-    // ユーザーが既にこのクイズのバッジを持っているか確認
-    const existingBadge = await prisma.badge.findFirst({
-      where: {
-        userId: session.user.id,
-        quizId,
-      },
-    });
-
-    // バッジ獲得条件（クイズIDによって異なる）
-    if (!existingBadge) {
-      let badgeEarned = false;
-      let badgeName = "";
-      let badgeDescription = "";
-      let badgeImageUrl = "";
-
-      if (quizId === "quiz-001" && scorePercentage >= 80) {
-        badgeEarned = true;
-        badgeName = "Web基礎マスター";
-        badgeDescription = "Web概論テストで80%以上の正解率を達成";
-        badgeImageUrl = "/badges/web-basic-badge.svg";
-      } else if (quizId === "quiz-002" && scorePercentage === 100) {
-        badgeEarned = true;
-        badgeName = "チーム開発マスター";
-        badgeDescription = "Gitとチーム開発テストで全問正解";
-        badgeImageUrl = "/badges/git-team-badge.svg";
-      } else if (quizId === "quiz-003" && scorePercentage >= 80) {
-        badgeEarned = true;
-        badgeName = "JavaScript達人";
-        badgeDescription = "JavaScriptテストで80%以上の正解率を達成";
-        badgeImageUrl = "/badges/javascript-badge.svg";
-      }
-
-      // バッジを獲得した場合、DBに保存
-      if (badgeEarned) {
-        newBadge = await prisma.badge.create({
+    // 新規または更新
+    if (!existingResult || existingResult.score < body.score) {
+      if (existingResult) {
+        // 既存結果があれば更新
+        quizResult = await prisma.quizResult.update({
+          where: { id: existingResult.id },
           data: {
-            userId,
-            quizId,
-            name: badgeName,
-            description: badgeDescription,
-            imageUrl: badgeImageUrl,
-            achievedAt: new Date(),
+            score: body.score,
+            completedAt: new Date(),
           },
+          include: { quiz: true },
+        });
+      } else {
+        // 新規作成
+        quizResult = await prisma.quizResult.create({
+          data: {
+            quiz: { connect: { id: body.quizId } },
+            user: { connect: { id: userId } },
+            score: body.score,
+            maxScore: body.maxScore,
+            completedAt: new Date(),
+          },
+          include: { quiz: true },
         });
       }
+
+      // バッジの確認
+      if (!existingResult && body.score >= body.maxScore * 0.8) {
+        // 初めて80%以上のスコアを獲得した場合、バッジを付与
+        const quiz = await prisma.quiz.findUnique({
+          where: { id: body.quizId },
+          include: { badge: true },
+        });
+
+        if (quiz?.badge) {
+          // ユーザーにバッジを付与
+          await prisma.badge.create({
+            data: {
+              user: {
+                connect: { id: userId },
+              },
+              quiz: {
+                connect: { id: quiz.id },
+              },
+              name: quiz.badge.name,
+              description: quiz.badge.description,
+              imageUrl: quiz.badge.imageUrl,
+              achievedAt: new Date(),
+            },
+          });
+
+          newBadge = quiz.badge;
+        }
+      }
+    } else {
+      // 既存の結果があり、新しいスコアが高くない場合は既存結果を返す
+      quizResult = existingResult;
     }
 
-    return NextResponse.json(
-      {
-        quizResult,
-        newBadge,
-        message: "テスト結果が正常に保存されました",
+    return NextResponse.json({
+      quizResult: {
+        id: quizResult.id,
+        quizId: quizResult.quizId,
+        quizName: quizResult.quiz?.name || "クイズ",
+        score: quizResult.score,
+        maxScore: quizResult.maxScore,
+        completedAt: quizResult.completedAt,
       },
-      { status: 201 }
-    );
+      newBadge,
+    });
   } catch (error) {
-    console.error("テスト結果保存エラー:", error);
+    console.error("クイズ結果保存エラー:", error);
+    // エラーの詳細情報を追加
+    if (error instanceof Error) {
+      console.error("エラーメッセージ:", error.message);
+      console.error("エラースタック:", error.stack);
+    }
     return NextResponse.json(
-      { error: "テスト結果の保存中にエラーが発生しました" },
+      { error: "クイズ結果の保存に失敗しました" },
       { status: 500 }
     );
   }

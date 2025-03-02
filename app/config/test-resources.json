@@ -1,0 +1,12 @@
+{
+  "ex-001": {
+    "cpus": "0.5",
+    "memory": "512m",
+    "timeout": 60000
+  },
+  "default": {
+    "cpus": "0.3",
+    "memory": "256m",
+    "timeout": 45000
+  }
+}

@@ -8,6 +8,7 @@ interface QuizCardProps {
   onSelectOption: (index: number) => void;
   onSubmitAnswer: () => void;
   onNextQuestion: () => void;
+  isLastQuestion?: boolean;
 }
 
 const QuizCard: React.FC<QuizCardProps> = ({
@@ -17,21 +18,27 @@ const QuizCard: React.FC<QuizCardProps> = ({
   onSelectOption,
   onSubmitAnswer,
   onNextQuestion,
+  isLastQuestion,
 }) => {
   const getOptionClassName = (index: number) => {
-    let className = "quiz-option mb-3 text-lg";
+    let className =
+      "quiz-option mb-3 text-lg p-3 border rounded-lg cursor-pointer";
 
-    if (showAnswer) {
-      if (index === question.correctAnswerIndex) {
-        className += " correct";
-      } else if (index === selectedOptionIndex) {
-        className += " incorrect";
-      }
-    } else if (index === selectedOptionIndex) {
-      className += " selected";
+    if (index === selectedOptionIndex) {
+      className += " selected bg-blue-50 border-blue-500";
+    } else {
+      className += " hover:bg-gray-50";
     }
 
     return className;
+  };
+
+  // 選択肢を選んだ時に即座に回答提出
+  const handleOptionSelect = (index: number) => {
+    if (!showAnswer && selectedOptionIndex === null) {
+      onSelectOption(index);
+      onSubmitAnswer();
+    }
   };
 
   return (
@@ -40,39 +47,25 @@ const QuizCard: React.FC<QuizCardProps> = ({
         {question.category}
       </span>
 
-      <h2 className="text-xl md:text-2xl font-medium mb-6">
-        {question.question}
-      </h2>
+      <div className="h-14 overflow-y-auto mb-6">
+        <h2 className="text-xl md:text-2xl font-medium">{question.question}</h2>
+      </div>
 
-      <div className="mb-6">
+      {/* 選択肢 - 固定高さのコンテナに配置 */}
+      <div className="mb-6 h-64 overflow-y-auto">
         {question.options.map((option, index) => (
           <div
             key={index}
             className={getOptionClassName(index)}
-            onClick={() => !showAnswer && onSelectOption(index)}
+            onClick={() => handleOptionSelect(index)}
           >
             {option}
           </div>
         ))}
       </div>
 
-      {showAnswer && (
-        <div
-          className={`p-4 mb-6 rounded-lg text-center font-medium ${
-            selectedOptionIndex === question.correctAnswerIndex
-              ? "bg-green-50 text-green-700"
-              : "bg-red-50 text-red-700"
-          }`}
-        >
-          {selectedOptionIndex === question.correctAnswerIndex
-            ? "正解！よくできました！"
-            : `不正解！正解は「${
-                question.options[question.correctAnswerIndex]
-              }」です。`}
-        </div>
-      )}
-
-      <div className="flex justify-between">
+      {/* ボタン - 固定位置 */}
+      <div className="flex justify-between mt-4">
         <button
           className="btn btn-secondary"
           onClick={() =>
@@ -84,19 +77,11 @@ const QuizCard: React.FC<QuizCardProps> = ({
 
         {showAnswer ? (
           <button className="btn btn-primary" onClick={onNextQuestion}>
-            次の問題
+            {isLastQuestion ? "結果を表示" : "次の問題"}
           </button>
         ) : (
-          <button
-            className={
-              selectedOptionIndex !== null
-                ? "btn btn-primary"
-                : "btn btn-disabled"
-            }
-            onClick={onSubmitAnswer}
-            disabled={selectedOptionIndex === null}
-          >
-            回答する
+          <button className="btn btn-disabled" disabled>
+            回答を選択してください
           </button>
         )}
       </div>

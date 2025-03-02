@@ -30,15 +30,21 @@ export async function POST(request: NextRequest) {
 
     // 非同期でテストを実行
     updateSubmissionStatus(submission.id, "testing")
-      .then(() => runTests({
-        id: submission.id,
-        userId: submission.userId,
-        exerciseId: submission.exerciseId,
-        repositoryUrl: submission.repositoryUrl,
-        status: submission.status,
-        submittedAt: submission.createdAt,
-        results: null,
-      }))
+      .then(() =>
+        runTests({
+          id: submission.id,
+          userId: submission.userId,
+          exerciseId: submission.exerciseId,
+          repositoryUrl: submission.repositoryUrl,
+          status: submission.status as
+            | "testing"
+            | "pending"
+            | "completed"
+            | "failed",
+          submittedAt: submission.createdAt,
+          results: null,
+        })
+      )
       .then((result) => {
         // テスト結果を保存
         return saveTestResult({
@@ -69,8 +75,8 @@ export async function POST(request: NextRequest) {
         exerciseId: submission.exerciseId,
         repositoryUrl: submission.repositoryUrl,
         status: submission.status,
-        submittedAt: submission.createdAt
-      }
+        submittedAt: submission.createdAt,
+      },
     });
   } catch (error) {
     console.error("提出処理中にエラーが発生しました:", error);

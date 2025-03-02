@@ -1,0 +1,60 @@
+{
+  "id": "todo-app",
+  "name": "Todoアプリケーション",
+  "description": "シンプルなTodoリスト管理アプリを実装する演習",
+  "type": "todo-app",
+  "dockerImage": "todo-app-test-runner",
+  "resources": {
+    "cpus": "0.5",
+    "memory": "512m",
+    "timeout": 60000
+  },
+  "tests": [
+    {
+      "id": "ui-components",
+      "name": "UIコンポーネントの確認",
+      "weight": 25,
+      "selectors": ["#todo-input", "#add-button", ".todo-list"]
+    },
+    {
+      "id": "add-todo",
+      "name": "タスク追加機能",
+      "weight": 25,
+      "steps": [
+        {
+          "action": "type",
+          "selector": "#todo-input",
+          "value": "テストタスク"
+        },
+        { "action": "click", "selector": "#add-button" }
+      ],
+      "expectations": [{ "selector": ".todo-item", "contains": "テストタスク" }]
+    },
+    {
+      "id": "complete-todo",
+      "name": "タスク完了機能",
+      "weight": 25,
+      "steps": [
+        {
+          "action": "click",
+          "selector": ".todo-item:first-child .complete-button"
+        }
+      ],
+      "expectations": [
+        { "selector": ".todo-item:first-child", "hasClass": "completed" }
+      ]
+    },
+    {
+      "id": "delete-todo",
+      "name": "タスク削除機能",
+      "weight": 25,
+      "steps": [
+        {
+          "action": "click",
+          "selector": ".todo-item:first-child .delete-button"
+        }
+      ],
+      "expectations": [{ "selector": ".todo-list", "childCount": 0 }]
+    }
+  ]
+}

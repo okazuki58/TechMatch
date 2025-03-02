@@ -20,6 +20,7 @@ model User {
   quizResults   QuizResult[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  role          String?   @default("user")
 }
 
 model Account {
@@ -88,6 +89,7 @@ model QuizResult {
   completedAt DateTime @default(now())
   createdAt   DateTime @default(now())
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz        Quiz     @relation(fields: [quizId], references: [id])
 }
 
 model Badge {
@@ -99,4 +101,42 @@ model Badge {
   imageUrl    String
   achievedAt  DateTime @default(now())
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz        Quiz     @relation(fields: [quizId], references: [id])
+}
+
+model Quiz {
+  id          String       @id @default(cuid())
+  name        String
+  description String
+  category    String
+  difficulty  String       // "easy", "medium", "hard"
+  questions   Question[]
+  badge       QuizBadge?
+  badges      Badge[]      // ユーザーが獲得したバッジへの参照
+  quizResults QuizResult[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Question {
+  id                String   @id @default(cuid())
+  quizId            String
+  quiz              Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  question          String   @db.Text
+  category          String
+  options           String[] // 選択肢の配列
+  correctAnswerIndex Int
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model QuizBadge {
+  id          String   @id @default(cuid())
+  quizId      String   @unique
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  name        String
+  description String
+  imageUrl    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
