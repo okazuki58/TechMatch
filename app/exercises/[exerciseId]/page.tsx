@@ -18,6 +18,7 @@ import { toString } from "hast-util-to-string";
 import rehypeRaw from "rehype-raw";
 import type { Element } from "hast";
 import type { Node as UnistNode } from "unist";
+import Image from "next/image";
 
 interface CodeProps {
   node?: UnistNode;
@@ -317,6 +318,19 @@ export default function ExerciseDetailPage() {
                 </span>
               </div>
             </div>
+
+            {exercise.gifUrl && (
+              <div className="mb-6">
+                <Image
+                  src={exercise.gifUrl}
+                  alt={`${exercise.title}の説明GIF`}
+                  width={600}
+                  height={400}
+                  className="rounded-lg"
+                  unoptimized={!exercise.gifUrl.startsWith("/")} // 外部URLの場合はNext.jsの最適化をスキップ
+                />
+              </div>
+            )}
 
             <p className="text-gray-600 mb-6">{exercise.description}</p>
 
