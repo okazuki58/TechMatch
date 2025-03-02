@@ -11,66 +11,57 @@ import RepositoryForm from "@/app/ui/exercise/repository-form";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import type { Components } from "react-markdown";
+import { visit } from "unist-util-visit";
+import { toString } from "hast-util-to-string";
+import rehypeRaw from "rehype-raw";
+import type { Element } from "hast";
+import type { Node as UnistNode } from "unist";
 
-interface CodeBlockProps {
+interface CodeProps {
+  node?: UnistNode;
   inline?: boolean;
   className?: string;
   children: React.ReactNode;
   [key: string]: unknown;
 }
 
-// 独立したコンポーネントとして定義
-const CodeBlock = ({
-  inline,
-  className,
-  children,
-  ...props
-}: CodeBlockProps) => {
-  const match = /language-(\w+)/.exec(className || "");
-  const code = String(children).replace(/\n$/, "");
-  const [copied, setCopied] = useState(false);
+interface ElementWithParent extends Element {
+  parent?: {
+    children: ElementWithParent[];
+    [key: string]: unknown;
+  };
+}
 
-  // コピー状態をリセットするタイマー
-  useEffect(() => {
-    if (copied) {
-      const timer = setTimeout(() => {
-        setCopied(false);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [copied]);
+type SyntaxHighlighterStyle = { [key: string]: React.CSSProperties };
 
-  if (!inline && match) {
-    return (
-      <div className="relative group">
-        <button
-          onClick={() => {
-            navigator.clipboard.writeText(code);
-            setCopied(true);
-          }}
-          className="absolute top-2 right-2 bg-gray-700 hover:bg-gray-600 text-white rounded px-2 py-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-        >
-          {copied ? "コピーしました" : "コピー"}
-        </button>
-        <SyntaxHighlighter
-          style={vscDarkPlus}
-          language={match[1]}
-          PreTag="div"
-          {...props}
-        >
-          {code}
-        </SyntaxHighlighter>
-      </div>
-    );
-  }
-  return (
-    <code className="bg-gray-100 px-1 py-0.5 rounded" {...props}>
-      {children}
-    </code>
-  );
-};
+// カスタムrehypeプラグイン - class="completed"を強調表示する
+function rehypeHighlightClassCompleted() {
+  return (tree: UnistNode) => {
+    visit(tree, "element", (node: ElementWithParent) => {
+      if (node.tagName === "code") {
+        const value = toString(node);
+        if (value === 'class="completed"') {
+          // parent と children が存在するか確認
+          if (node.parent && Array.isArray(node.parent.children)) {
+            const parentIndex = node.parent.children.indexOf(node);
+            if (parentIndex !== -1) {
+              const strongNode: ElementWithParent = {
+                type: "element",
+                tagName: "strong",
+                properties: {},
+                children: [node],
+              };
+
+              node.parent.children.splice(parentIndex, 1, strongNode);
+            }
+          }
+        }
+      }
+    });
+  };
+}
 
 export default function ExerciseDetailPage() {
   const params = useParams();
@@ -79,26 +70,103 @@ export default function ExerciseDetailPage() {
   const router = useRouter();
   const [exercise, setExercise] = useState<Exercise | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"instructions" | "setup">(
-    "instructions"
-  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const renderMarkdown = (content: string | undefined) => {
     if (!content) return <p>コンテンツがありません</p>;
 
-    return (
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        components={
-          {
-            code: CodeBlock,
-          } as Components
+    const components = {
+      code({ inline, className, children, ...props }: CodeProps) {
+        // HTMLタグを含む場合はコード内容を取得
+        const codeContent = String(children).replace(/\n$/, "");
+
+        // リスト内のHTMLタグを含むコードは常にインラインとして扱う
+        const isHtmlTag = codeContent.match(/^<.*>$/);
+        const forceInline = isHtmlTag && codeContent.length < 50;
+
+        const match = /language-(\w+)/.exec(className || "");
+
+        // インラインコードまたは強制インライン
+        if (inline || forceInline) {
+          return (
+            <code
+              className="bg-gray-200 px-1 py-0.5 rounded text-gray-800 font-mono text-sm"
+              style={{ display: "inline" }}
+              {...props}
+            >
+              {children}
+            </code>
+          );
         }
-      >
-        {content}
-      </ReactMarkdown>
+
+        // 通常のコードブロック
+        if (match) {
+          return (
+            <div className="relative group">
+              <button
+                onClick={() => navigator.clipboard.writeText(codeContent)}
+                className="absolute top-2 right-2 bg-gray-700 hover:bg-gray-600 text-white rounded px-2 py-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                コピー
+              </button>
+              <SyntaxHighlighter
+                style={vscDarkPlus as SyntaxHighlighterStyle}
+                language={match[1]}
+                PreTag="div"
+              >
+                {codeContent}
+              </SyntaxHighlighter>
+            </div>
+          );
+        }
+
+        return (
+          <pre className="bg-gray-100 px-4 py-2 rounded overflow-x-auto">
+            <code className="text-gray-800">{children}</code>
+          </pre>
+        );
+      },
+    } as Components;
+
+    return (
+      <>
+        <style jsx global>{`
+          /* リスト内の段落を揃える */
+          .markdown-body li > p {
+            margin: 0;
+            display: inline;
+          }
+          /* リスト内のプリタグを調整 */
+          .markdown-body li > pre {
+            display: inline;
+            margin: 0;
+            padding: 0.1em 0.3em;
+            background: #f0f0f0;
+            border-radius: 3px;
+          }
+          .markdown-body li > pre > code {
+            padding: 0;
+            white-space: normal;
+            background: transparent;
+          }
+
+          /* Proseが追加するバッククオートを非表示にする */
+          .prose code::before,
+          .prose code::after {
+            content: none !important;
+          }
+        `}</style>
+        <div className="prose prose-slate max-w-none markdown-body">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw, rehypeHighlightClassCompleted]}
+            components={components}
+          >
+            {content}
+          </ReactMarkdown>
+        </div>
+      </>
     );
   };
 
@@ -229,7 +297,7 @@ export default function ExerciseDetailPage() {
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <div className="p-6">
             <div className="flex flex-wrap justify-between items-start mb-4">
-              <h1 className="text-2xl font-bold text-gray-900 mr-4">
+              <h1 className="text-3xl font-bold text-gray-900 mr-4">
                 {exercise.title}
               </h1>
               <div className="flex items-center mt-1 space-x-3">
@@ -263,35 +331,8 @@ export default function ExerciseDetailPage() {
               ))}
             </div>
 
-            <div className="border-b border-gray-200 mb-6">
-              <nav className="flex -mb-px">
-                <button
-                  onClick={() => setActiveTab("instructions")}
-                  className={`py-4 px-6 font-medium text-sm border-b-2 ${
-                    activeTab === "instructions"
-                      ? "border-blue-500 text-blue-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  }`}
-                >
-                  演習の説明
-                </button>
-                <button
-                  onClick={() => setActiveTab("setup")}
-                  className={`py-4 px-6 font-medium text-sm border-b-2 ${
-                    activeTab === "setup"
-                      ? "border-blue-500 text-blue-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  }`}
-                >
-                  セットアップ手順
-                </button>
-              </nav>
-            </div>
-
             <div className="prose max-w-none">
-              {activeTab === "instructions"
-                ? renderMarkdown(exercise?.instructions)
-                : renderMarkdown(exercise?.setupGuide)}
+              {renderMarkdown(exercise?.instructions)}
             </div>
 
             <div className="mt-8 pt-6 border-t border-gray-200">

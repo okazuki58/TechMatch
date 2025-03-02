@@ -5,10 +5,10 @@ export const exercises = [
   {
     id: "ex-001",
     title: "シンプルなTodoアプリ",
-    description: "Reactを使用した基本的なTodoアプリを作成する演習です。",
+    description: "HTML, CSS, JavaScriptを使用した基本的なTodoアプリを作成する演習です。",
     difficulty: "beginner",
     category: "frontend",
-    tags: ["react", "javascript", "state-management"],
+    tags: ["html", "css", "javascript"],
     testDescription:
       "テストでは、Todoアイテムの追加、切り替え、削除、フィルタリングの各機能が正しく動作するかを検証します。",
     createdAt: new Date("2023-01-15"),
@@ -30,15 +30,12 @@ function getFallbackMarkdown(exerciseId: string) {
 
   // ここに既存のマークダウンテキストを返す
   return `
-# ${exercise.title}
-
-${exercise.description}
 
 ## 要件
 
-1. Todoアイテムの追加機能を実装する
-2. Todoアイテムの完了/未完了の切り替え機能を実装する
-3. Todoアイテムの削除機能を実装する
+1. **タスクの追加**: 入力フィールドにテキストを入力し、追加ボタンをクリックするとリストに追加される
+2. **タスクの完了/未完了**: タスクをクリックすると、取り消し線で完了/未完了を切り替えられる
+3. **タスクの削除**: 削除ボタンをクリックするとタスクが削除される
 
 ## 技術的要件（自動テストのため）
 
@@ -49,80 +46,38 @@ ${exercise.description}
 - Todoリスト: \`<ul id="todo-list">\`
 - Todoアイテム: \`<li class="todo-item">\`
 - Todoテキスト: \`<span class="todo-text">\`
-- 完了状態のクラス: \`class="completed"\`
+- 完了状態のクラス: <code><strong>class="completed"</strong></code>
 - 削除ボタン: \`<button class="delete-btn">\`
 
-## 機能の詳細
+## 開発手順
 
-1. 入力フィールドにテキストを入力し、追加ボタンをクリックするとタスクが追加される
-2. タスクのテキスト部分をクリックすると、完了/未完了状態が切り替わる（完了状態では取り消し線が表示される）
-3. 削除ボタンをクリックすると、タスクが削除される
-4. ページを再読み込みしても、タスクが保持される（LocalStorageを使用）
-
-## セットアップ手順
-
-1. リポジトリをクローン:
+1. 新しいプロジェクトディレクトリを作成:
 
 \`\`\`bash
-git clone https://github.com/your-username/todo-app-exercise.git
-cd todo-app-exercise
+mkdir my-todo-app
+cd my-todo-app
 \`\`\`
 
-2. 依存関係をインストール:
+2. 必要なファイルを作成:
+   - index.html
+   - styles.css
+   - script.js
 
-\`\`\`bash
-npm install
-\`\`\`
-
-3. 開発サーバーを起動:
-
-\`\`\`bash
-npm start
-\`\`\`
+3. 要件に沿ってTodoアプリを実装してください
 
 ## 提出方法
 
-完成したコードをGitHubリポジトリにプッシュし、リポジトリのURLを提出してください。
-自動テストが実行され、結果が表示されます。
-  `;
-}
-
-// セットアップガイドを取得
-function getSetupGuide(exerciseId: string) {
-  const exercise = exercises.find((ex) => ex.id === exerciseId);
-  if (!exercise) return "";
-
-  return `
-# ${exercise.title} セットアップガイド
-
-## 開発環境のセットアップ
-
-1. Node.jsとnpmがインストールされていることを確認してください
-
-2. リポジトリをクローン:
+1. 実装したコードをGitHubリポジトリにプッシュ:
 
 \`\`\`bash
-git clone https://github.com/example/${exerciseId}.git
-cd ${exerciseId}
+git init
+git add .
+git commit -m "Implement Todo app"
+git remote add origin https://github.com/あなたのユーザー名/あなたのリポジトリ名.git
+git push -u origin main
 \`\`\`
 
-3. 依存関係をインストール:
-
-\`\`\`bash
-npm install
-\`\`\`
-
-4. 開発サーバーを起動:
-
-\`\`\`bash
-npm start
-\`\`\`
-
-## テストの実行方法
-
-\`\`\`bash
-npm test
-\`\`\`
+2. リポジトリのURLを提出フォームに貼り付けて提出
   `;
 }
 
@@ -132,12 +87,10 @@ export async function getExerciseById(id: string) {
 
   // 代わりに静的なコンテンツを使用
   const instructions = getFallbackMarkdown(id);
-  const setupGuide = getSetupGuide(id);
 
   return {
     ...exercise,
     instructions,
-    setupGuide,
   };
 }
 
